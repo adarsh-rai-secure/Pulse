@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Account Compass</title>
+  <title>Property Oracle</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
@@ -162,10 +162,12 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 12px;
+      padding: 4px 4px 4px 10px;
       background: var(--color-background-secondary);
       border-radius: var(--border-radius-md);
       font-size: 12px;
+      border: 0.5px solid var(--color-border-tertiary);
+      position: relative;
     }
 
     .ac-user-avatar {
@@ -179,6 +181,27 @@
       justify-content: center;
       font-size: 11px;
       font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .ac-user-select {
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      color: var(--color-text-primary);
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      padding: 2px 24px 2px 0;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235A5A6E' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 4px center;
+    }
+
+    .ac-user-select:focus {
+      box-shadow: none;
     }
 
     .ac-walkthrough {
@@ -904,13 +927,13 @@
 
 <body>
 
-  <h2 class="sr-only">Account Compass: CSM portfolio dashboard with quadrant scatter, case table, and templated
+  <h2 class="sr-only">Property Oracle: CSM portfolio dashboard with quadrant scatter, case table, and templated
     outreach.</h2>
 
   <div class="ac-wrap">
     <div class="ac-header">
       <div>
-        <h2 class="ac-title">Account Compass</h2>
+        <h2 class="ac-title">Property Oracle</h2>
         <p class="ac-subtitle">Internal portfolio tool · CSM workspace</p>
       </div>
       <div class="ac-header-actions">
@@ -920,9 +943,15 @@
         </label>
         <span class="ac-upload-status" id="uploadStatus"></span>
         <button class="ac-guide-toggle" id="guideToggle">Reference guide</button>
-        <div class="ac-user-chip">
-          <div class="ac-user-avatar">AM</div>
-          <span>Logged in as Ally Martinelli</span>
+        <div class="ac-user-chip" id="userChip">
+          <div class="ac-user-avatar" id="userAvatar">AM</div>
+          <select class="ac-user-select" id="userSelect" title="Switch owner">
+            <option value="Ally Martinelli">Ally Martinelli</option>
+            <option value="Olivia Sell">Olivia Sell</option>
+            <option value="Chris Anderson">Chris Anderson</option>
+            <option value="Jonny Hou">Jonny Hou</option>
+            <option value="Sonia Mody">Sonia Mody</option>
+          </select>
         </div>
       </div>
     </div>
@@ -1501,6 +1530,19 @@
       });
 
       renderAll();
+
+      // Owner dropdown — update avatar initials on change
+      (function () {
+        var sel = document.getElementById('userSelect');
+        var avatar = document.getElementById('userAvatar');
+        if (!sel || !avatar) return;
+        function getInitials(name) {
+          return name.trim().split(/\s+/).map(function (w) { return w[0].toUpperCase(); }).join('').slice(0, 2);
+        }
+        sel.addEventListener('change', function () {
+          avatar.textContent = getInitials(sel.value);
+        });
+      })();
 
       /* =====================================================================
          RETOOL HOOKUP
