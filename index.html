@@ -1008,7 +1008,8 @@
 
     <p class="ac-footnote">This component reads uploaded CSV data from its <code>model.data</code> prop. In Retool, bind
       <code>accountCompass</code>'s model property to <code>{{ { data: csvUpload.parsedValue[0] } }}</code>. Expected
-      columns: <code>Property Name</code>, <code>User Adoption (%)</code>, <code>Conversion Rate (%)</code>.</p>
+      columns: <code>Property Name</code>, <code>User Adoption (%)</code>, <code>Conversion Rate (%)</code>.
+    </p>
   </div>
 
   <script>
@@ -1483,6 +1484,25 @@
         loadCsvFromUrl(csvUrl).catch(function () { });
       }
     })();
+  </script>
+
+  <script>
+    window.addEventListener("message", (event) => {
+      if (!event.data || event.data.type !== "LOAD_DATA") return;
+
+      const rows = event.data.payload || [];
+
+      const mapped = rows.map(row => ({
+        name: row["Property Name"],
+        ua: Number(row["User Adoption (%)"]),
+        cr: Number(row["Conversion Rate (%)"])
+      }));
+
+      properties = mapped;
+      initCaseState();
+      selectedProperty = null;
+      renderAll();
+    });
   </script>
 </body>
 
