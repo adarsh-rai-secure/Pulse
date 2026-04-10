@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Account Compass</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
       --color-text-primary: #0B0B14;
@@ -715,6 +716,32 @@
       background: var(--color-background-secondary);
     }
 
+    .ac-upload-btn {
+      background: var(--color-background-info);
+      border: 0.5px solid var(--color-border-info);
+      color: var(--color-text-info);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: background 0.12s;
+    }
+
+    .ac-upload-btn:hover {
+      background: #E7E1F9;
+    }
+
+    .ac-upload-status {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin-left: 6px;
+      font-style: italic;
+    }
+
     .ac-guide {
       background: var(--color-background-secondary);
       padding: 20px 22px;
@@ -887,6 +914,11 @@
         <p class="ac-subtitle">Internal portfolio tool · CSM workspace</p>
       </div>
       <div class="ac-header-actions">
+        <label class="ac-upload-btn" for="acFileInput">
+          Upload CSV / Excel
+          <input type="file" id="acFileInput" accept=".csv,.xlsx,.xls" style="display:none" />
+        </label>
+        <span class="ac-upload-status" id="uploadStatus"></span>
         <button class="ac-guide-toggle" id="guideToggle">Reference guide</button>
         <div class="ac-user-chip">
           <div class="ac-user-avatar">AM</div>
@@ -1008,8 +1040,7 @@
 
     <p class="ac-footnote">This component reads uploaded CSV data from its <code>model.data</code> prop. In Retool, bind
       <code>accountCompass</code>'s model property to <code>{{ { data: csvUpload.parsedValue[0] } }}</code>. Expected
-      columns: <code>Property Name</code>, <code>User Adoption (%)</code>, <code>Conversion Rate (%)</code>.
-    </p>
+      columns: <code>Property Name</code>, <code>User Adoption (%)</code>, <code>Conversion Rate (%)</code>.</p>
   </div>
 
   <script>
@@ -1383,6 +1414,92 @@
         if (guideOpen) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
 
+      /* =====================================================================
+         IN-HTML FILE UPLOAD
+         Handles both .csv and .xlsx files. Parses in the browser using
+         SheetJS (loaded via CDN in the head). Maps the parsed rows through
+         applyModel(), which already handles column-name variants.
+         ===================================================================== */
+      function parseCSV(text) {
+        var lines = text.split(/\r?\n/).filter(function (l) { return l.trim().length > 0; });
+        if (lines.length < 2) return [];
+        function splitRow(line) {
+          var out = [], cur = '', inQ = false;
+          for (var i = 0; i < line.length; i++) {
+            var ch = line[i];
+            if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; continue; }
+            if (ch === '"') { inQ = !inQ; continue; }
+            if (ch === ',' && !inQ) { out.push(cur); cur = ''; continue; }
+            cur += ch;
+          }
+          out.push(cur);
+          return out.map(function (s) { return s.trim(); });
+        }
+        var headers = splitRow(lines[0]);
+        return lines.slice(1).map(function (line) {
+          var cells = splitRow(line);
+          var obj = {};
+          headers.forEach(function (h, i) { obj[h] = cells[i] || ''; });
+          return obj;
+        });
+      }
+
+      function setUploadStatus(msg, isError) {
+        var el = document.getElementById('uploadStatus');
+        if (!el) return;
+        el.textContent = msg;
+        el.style.color = isError ? 'var(--color-text-danger)' : 'var(--color-text-secondary)';
+      }
+
+      document.getElementById('acFileInput').addEventListener('change', function (e) {
+        var file = e.target.files && e.target.files[0];
+        if (!file) return;
+        var name = file.name.toLowerCase();
+        var isCsv = name.endsWith('.csv');
+        var isXlsx = name.endsWith('.xlsx') || name.endsWith('.xls');
+        if (!isCsv && !isXlsx) {
+          setUploadStatus('Unsupported file type', true);
+          return;
+        }
+        setUploadStatus('Loading ' + file.name + '...');
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+          try {
+            var rows = [];
+            if (isCsv) {
+              rows = parseCSV(evt.target.result);
+            } else {
+              if (typeof XLSX === 'undefined') {
+                setUploadStatus('Excel parser failed to load. Try CSV instead.', true);
+                return;
+              }
+              var data = new Uint8Array(evt.target.result);
+              var wb = XLSX.read(data, { type: 'array' });
+              var sheetName = wb.SheetNames[0];
+              var ws = wb.Sheets[sheetName];
+              rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+            }
+            if (!rows || rows.length === 0) {
+              setUploadStatus('File contained no rows', true);
+              return;
+            }
+            applyModel({ data: rows });
+            setUploadStatus('Loaded ' + rows.length + ' properties from ' + file.name);
+          } catch (err) {
+            console.error('Upload parse failed:', err);
+            setUploadStatus('Could not parse file: ' + err.message, true);
+          }
+        };
+        reader.onerror = function () {
+          setUploadStatus('Could not read file', true);
+        };
+        if (isCsv) {
+          reader.readAsText(file);
+        } else {
+          reader.readAsArrayBuffer(file);
+        }
+      });
+
       renderAll();
 
       /* =====================================================================
@@ -1419,105 +1536,7 @@
       window.addEventListener('message', function (e) {
         if (e.data && e.data.model) applyModel(e.data.model);
       });
-
-      /* =====================================================================
-         CSV-FROM-URL SUPPORT
-         When the page is loaded with ?csvUrl=<url>, fetch that CSV, parse it,
-         and feed the rows into applyModel so the tool shows real data instead
-         of hardcoded demo properties.
-         ===================================================================== */
-      function getQueryParam(name) {
-        try {
-          return new URLSearchParams(window.location.search).get(name);
-        } catch (e) {
-          return null;
-        }
-      }
-
-      // Robust CSV parsing using PapaParse if available, otherwise a tiny fallback
-      function parseCsvText(text) {
-        // If PapaParse is available in the iframe, use it (most robust)
-        if (typeof Papa !== 'undefined' && Papa.parse) {
-          var result = Papa.parse(text, { header: true, skipEmptyLines: true });
-          return result.data || [];
-        }
-
-        // Minimal fallback parser (works for simple CSVs)
-        var lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter(Boolean);
-        if (lines.length < 2) return [];
-
-        var splitRow = function (row) {
-          var out = [];
-          var cur = '', inQ = false;
-          for (var i = 0; i < row.length; i++) {
-            var ch = row[i];
-            if (ch === '"' && row[i + 1] === '"') { cur += '"'; i++; continue; }
-            if (ch === '"') { inQ = !inQ; continue; }
-            if (ch === ',' && !inQ) { out.push(cur); cur = ''; continue; }
-            cur += ch;
-          }
-          out.push(cur);
-          return out.map(function (s) { return s.trim(); });
-        };
-
-        var headers = splitRow(lines[0]);
-        return lines.slice(1).map(function (line) {
-          var cells = splitRow(line);
-          var obj = {};
-          headers.forEach(function (h, idx) { obj[h] = cells[idx] || ''; });
-          return obj;
-        });
-      }
-
-      function loadCsvFromUrl(csvUrl) {
-        return fetch(csvUrl)
-          .then(function (res) { return res.text(); })
-          .then(function (text) {
-            var rows = parseCsvText(text);
-            applyModel({ data: rows });
-          });
-      }
-
-      // Boot: if csvUrl is present, load it
-      var csvUrl = getQueryParam('csvUrl');
-      if (csvUrl) {
-        loadCsvFromUrl(csvUrl).catch(function () { });
-      }
     })();
-  </script>
-
-  <script>
-    window.addEventListener("message", (event) => {
-      if (!event.data || event.data.type !== "LOAD_DATA") return;
-
-      const rows = event.data.payload || [];
-
-      const mapped = rows.map(row => ({
-        name: row["Property Name"],
-        ua: Number(row["User Adoption (%)"]),
-        cr: Number(row["Conversion Rate (%)"])
-      }));
-
-      properties = mapped;
-      initCaseState();
-      selectedProperty = null;
-      renderAll();
-    });
-
-    // URL hash loader
-    try {
-      var hash = window.location.hash || '';
-      var encoded = null;
-      if (hash.indexOf('data=') !== -1) {
-        encoded = hash.split('data=')[1];
-      }
-      if (encoded) {
-        var rows = JSON.parse(decodeURIComponent(encoded));
-        if (Array.isArray(rows) && rows.length > 0) {
-          applyModel({ data: rows });
-        }
-      }
-    } catch (e) { console.error('hash data parse failed:', e); }
   </script>
 </body>
 
