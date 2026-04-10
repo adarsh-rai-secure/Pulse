@@ -1503,6 +1503,18 @@
       selectedProperty = null;
       renderAll();
     });
+
+    // URL query param loader
+    try {
+      var urlParams = new URLSearchParams(window.location.search);
+      var encoded = urlParams.get('data');
+      if (encoded) {
+        var rows = JSON.parse(decodeURIComponent(encoded));
+        if (Array.isArray(rows) && rows.length > 0) {
+          applyModel({ data: rows });
+        }
+      }
+    } catch (e) { console.error('URL data parse failed:', e); }
   </script>
 </body>
 
