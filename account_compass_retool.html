@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account Compass</title>
+  <style>
+    :root {
+      --color-text-primary: #0B0B14;
+      --color-text-secondary: #5A5A6E;
+      --color-text-tertiary: #8B8B9A;
+      --color-text-info: #6E56CF;
+      --color-text-danger: #B91C1C;
+      --color-text-warning: #B45309;
+      --color-text-success: #15803D;
+      --color-background-primary: #FFFFFF;
+      --color-background-secondary: #F7F7FB;
+      --color-background-tertiary: #EFEFF5;
+      --color-background-info: #F0ECFB;
+      --color-background-danger: #FEE2E2;
+      --color-background-warning: #FEF3C7;
+      --color-background-success: #DCFCE7;
+      --color-border-tertiary: #E4E4EC;
+      --color-border-secondary: #C8C8D4;
+      --color-border-info: #C3B8F0;
+      --border-radius-md: 6px;
+      --border-radius-lg: 10px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      --font-serif: Georgia, "Times New Roman", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--color-text-primary);
+      background: var(--color-background-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--color-background-tertiary);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-text-info);
+      cursor: pointer;
+      border: 2px solid var(--color-background-primary);
+      box-shadow: 0 0 0 1px var(--color-border-secondary);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-text-info);
+      cursor: pointer;
+      border: 2px solid var(--color-background-primary);
+      box-shadow: 0 0 0 1px var(--color-border-secondary);
+    }
+
+    input[type="text"],
+    select {
+      padding: 7px 10px;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      outline: none;
+      transition: border-color 0.12s;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--color-text-info);
+      box-shadow: 0 0 0 2px var(--color-background-info);
+    }
+
+    textarea {
+      padding: 8px 10px;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--color-text-info);
+      box-shadow: 0 0 0 2px var(--color-background-info);
+    }
+
+    .ac-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 24px;
+    }
+
+    .ac-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 14px;
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .ac-title {
+      font-size: 22px;
+      font-weight: 500;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    .ac-subtitle {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin: 4px 0 0;
+    }
+
+    .ac-header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .ac-user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--color-background-secondary);
+      border-radius: var(--border-radius-md);
+      font-size: 12px;
+    }
+
+    .ac-user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .ac-walkthrough {
+      background: var(--color-background-info);
+      border: 0.5px solid var(--color-border-info);
+      border-radius: var(--border-radius-md);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .ac-walkthrough-icon {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--color-background-primary);
+      color: var(--color-text-info);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 1px;
+    }
+
+    .ac-walkthrough-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ac-walkthrough-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-info);
+      margin: 0 0 4px;
+    }
+
+    .ac-walkthrough-body p {
+      font-size: 13px;
+      color: var(--color-text-info);
+      margin: 0 0 6px;
+      line-height: 1.6;
+    }
+
+    .ac-walkthrough-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .ac-walkthrough-close {
+      flex-shrink: 0;
+      background: transparent;
+      border: none;
+      color: var(--color-text-info);
+      font-size: 18px;
+      padding: 0 4px;
+      line-height: 1;
+    }
+
+    .ac-info {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
+      font-size: 10px;
+      font-weight: 500;
+      cursor: help;
+      margin-left: 5px;
+      position: relative;
+      border: 0.5px solid var(--color-border-tertiary);
+      font-style: italic;
+      font-family: var(--font-serif);
+    }
+
+    .ac-info:hover {
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+      border-color: var(--color-border-info);
+    }
+
+    .ac-info .ac-tip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-text-primary);
+      color: var(--color-background-primary);
+      font-size: 12px;
+      font-style: normal;
+      font-family: var(--font-sans);
+      font-weight: 400;
+      padding: 8px 12px;
+      border-radius: var(--border-radius-md);
+      width: 240px;
+      line-height: 1.5;
+      text-align: left;
+      pointer-events: none;
+      z-index: 100;
+      transition: opacity 0.15s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .ac-info .ac-tip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: var(--color-text-primary);
+    }
+
+    .ac-info:hover .ac-tip,
+    .ac-info:focus .ac-tip {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .ac-info-r .ac-tip {
+      left: auto;
+      right: -8px;
+      transform: none;
+    }
+
+    .ac-info-r .ac-tip::after {
+      left: auto;
+      right: 12px;
+      transform: none;
+    }
+
+    .ac-mid {
+      display: grid;
+      grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .ac-controls {
+      background: var(--color-background-secondary);
+      padding: 14px 16px;
+      border-radius: var(--border-radius-md);
+    }
+
+    .ac-controls h3 {
+      font-size: 11px;
+      font-weight: 500;
+      margin: 0 0 12px;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+    }
+
+    .ac-slider-row {
+      margin-bottom: 14px;
+    }
+
+    .ac-slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+
+    .ac-slider-label>span:first-child {
+      display: flex;
+      align-items: center;
+    }
+
+    .ac-slider-value {
+      font-weight: 500;
+    }
+
+    .ac-controls-note {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      margin: 4px 0 0;
+      line-height: 1.5;
+    }
+
+    .ac-scatter-wrap {
+      background: var(--color-background-secondary);
+      padding: 12px 14px 8px;
+      border-radius: var(--border-radius-md);
+    }
+
+    .ac-scatter-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .ac-scatter-head h3 {
+      font-size: 11px;
+      font-weight: 500;
+      margin: 0;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+    }
+
+    .ac-scatter svg {
+      width: 100%;
+      height: auto;
+      max-height: 290px;
+      display: block;
+    }
+
+    .ac-filters {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .ac-filters select,
+    .ac-filters input {
+      font-size: 13px;
+    }
+
+    .ac-filters input {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .ac-filters label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .ac-filters label input[type="checkbox"] {
+      margin: 0;
+    }
+
+    .ac-table-wrap {
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .ac-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    .ac-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--color-background-secondary);
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+    }
+
+    .ac-table td {
+      padding: 8px 12px;
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ac-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .ac-table tbody tr {
+      cursor: pointer;
+    }
+
+    .ac-table tbody tr:hover {
+      background: var(--color-background-secondary);
+    }
+
+    .ac-table tbody tr.selected {
+      background: var(--color-background-info);
+    }
+
+    .ac-table td select {
+      font-size: 12px;
+      padding: 3px 6px;
+      width: 100%;
+    }
+
+    .ac-num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ac-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: var(--border-radius-md);
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .ac-badge-churn {
+      background: var(--color-background-danger);
+      color: var(--color-text-danger);
+    }
+
+    .ac-badge-stuck {
+      background: var(--color-background-warning);
+      color: var(--color-text-warning);
+    }
+
+    .ac-badge-sleeping {
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+    }
+
+    .ac-badge-reference {
+      background: var(--color-background-success);
+      color: var(--color-text-success);
+    }
+
+    .ac-panel {
+      background: var(--color-background-secondary);
+      padding: 18px 20px;
+      border-radius: var(--border-radius-md);
+      margin-bottom: 16px;
+    }
+
+    .ac-panel-empty {
+      text-align: center;
+      color: var(--color-text-tertiary);
+      font-size: 13px;
+      padding: 36px 16px;
+    }
+
+    .ac-panel-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    .ac-panel-name {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0 0 4px;
+    }
+
+    .ac-panel-meta {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin: 0 0 14px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .ac-panel-metrics {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ac-metric {
+      padding: 8px 14px;
+      background: var(--color-background-primary);
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      flex: 1;
+    }
+
+    .ac-metric-label {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    .ac-metric-value {
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    .ac-section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-secondary);
+      margin: 0 0 8px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+
+    .ac-playbook {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .ac-playbook li {
+      margin-bottom: 4px;
+    }
+
+    .ac-form-row {
+      display: flex;
+      gap: 12px;
+      margin: 14px 0 12px;
+    }
+
+    .ac-form-row>div {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ac-form-row label {
+      display: flex;
+      align-items: center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-secondary);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .ac-form-row select {
+      width: 100%;
+    }
+
+    .ac-notes {
+      width: 100%;
+      min-height: 50px;
+      resize: vertical;
+      font-family: var(--font-sans);
+      font-size: 13px;
+    }
+
+    .ac-outreach {
+      background: var(--color-background-primary);
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      padding: 12px 14px;
+      margin-top: 4px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .ac-outreach pre {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin: 0;
+      color: var(--color-text-primary);
+    }
+
+    .ac-outreach-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ac-outreach-actions button,
+    .ac-outreach-actions a {
+      font-size: 12px;
+      padding: 7px 14px;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: background 0.12s;
+    }
+
+    .ac-outreach-actions button:hover,
+    .ac-outreach-actions a:hover {
+      background: var(--color-background-secondary);
+    }
+
+    .ac-outreach-actions button:active,
+    .ac-outreach-actions a:active {
+      transform: scale(0.98);
+    }
+
+    .ac-outreach-actions .primary {
+      background: var(--color-background-info);
+      color: var(--color-text-info);
+      border-color: var(--color-border-info);
+    }
+
+    .ac-outreach-actions .primary:hover {
+      background: #E7E1F9;
+    }
+
+    .ac-guide-toggle {
+      background: transparent;
+      border: 0.5px solid var(--color-border-secondary);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: var(--border-radius-md);
+      color: var(--color-text-primary);
+    }
+
+    .ac-guide-toggle:hover {
+      background: var(--color-background-secondary);
+    }
+
+    .ac-guide {
+      background: var(--color-background-secondary);
+      padding: 20px 22px;
+      border-radius: var(--border-radius-md);
+      margin-bottom: 16px;
+    }
+
+    .ac-guide h3 {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0 0 4px;
+    }
+
+    .ac-guide-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin: 0 0 16px;
+    }
+
+    .ac-guide-section {
+      margin-bottom: 18px;
+    }
+
+    .ac-guide-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .ac-guide-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-secondary);
+      margin: 0 0 8px;
+      font-weight: 500;
+    }
+
+    .ac-guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .ac-guide-card {
+      background: var(--color-background-primary);
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      padding: 12px 14px;
+    }
+
+    .ac-guide-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .ac-guide-card p {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .ac-guide-card .expect {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .ac-role-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+    }
+
+    .ac-role-row:last-child {
+      border-bottom: none;
+    }
+
+    .ac-role-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-background-primary);
+      border: 0.5px solid var(--color-border-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      flex-shrink: 0;
+    }
+
+    .ac-role-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ac-role-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .ac-role-role {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    .ac-role-desc {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+      line-height: 1.6;
+    }
+
+    .ac-footnote {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      padding-top: 12px;
+      border-top: 0.5px solid var(--color-border-tertiary);
+    }
+
+    .ac-footnote code {
+      background: var(--color-background-secondary);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 10.5px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @media (max-width: 820px) {
+      .ac-mid {
+        grid-template-columns: 1fr;
+      }
+
+      .ac-panel-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .ac-table {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2 class="sr-only">Account Compass: CSM portfolio dashboard with quadrant scatter, case table, and templated
+    outreach.</h2>
+
+  <div class="ac-wrap">
+    <div class="ac-header">
+      <div>
+        <h2 class="ac-title">Account Compass</h2>
+        <p class="ac-subtitle">Internal portfolio tool · CSM workspace</p>
+      </div>
+      <div class="ac-header-actions">
+        <button class="ac-guide-toggle" id="guideToggle">Reference guide</button>
+        <div class="ac-user-chip">
+          <div class="ac-user-avatar">AM</div>
+          <span>Logged in as Ally Martinelli</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ac-walkthrough" id="walkthrough">
+      <div class="ac-walkthrough-icon">1</div>
+      <div class="ac-walkthrough-body">
+        <p class="ac-walkthrough-title">How this tool works, in 30 seconds</p>
+        <p>Every property lands in one of four quadrants based on two numbers: how much the client's team uses the
+          product (user adoption) and how many leads the product converts (conversion rate). Drag either slider on the
+          left to redraw the quadrant lines. Counts, colors, and categories all update live.</p>
+        <p>Click any dot on the scatter plot or any row in the case table to open that property. You'll see the full
+          playbook for its category, a pre-drafted email (or internal ticket for stuck accounts) written to match the
+          situation, and one-click buttons to open the draft in your mail client or copy it to your clipboard. Edit it,
+          send it, come back and mark the case done.</p>
+        <p>For the full definitions of every category, status, and team role, open the reference guide in the top right.
+        </p>
+      </div>
+      <button class="ac-walkthrough-close" id="walkthroughClose" title="Dismiss">×</button>
+    </div>
+
+    <div id="guidePanel" style="display:none;"></div>
+
+    <div class="ac-mid">
+      <div class="ac-controls">
+        <h3>Thresholds
+          <span class="ac-info ac-info-r" tabindex="0">i<span class="ac-tip">The two sliders redraw the quadrant
+              dividers on the scatter plot. Moving them changes which properties belong to which category in real time.
+              Try dragging user adoption to 60 and watch sapphire shores mansion flip from reference to
+              stuck.</span></span>
+        </h3>
+        <div class="ac-slider-row">
+          <div class="ac-slider-label">
+            <span>User adoption
+              <span class="ac-info" tabindex="0">i<span class="ac-tip">The share of the client's leasing team actively
+                  using EliseAI week over week. Low adoption means the tool is installed but the humans are not touching
+                  it.</span></span>
+            </span>
+            <span class="ac-slider-value"><span id="uaVal">30</span>%</span>
+          </div>
+          <input type="range" min="0" max="100" step="1" value="30" id="uaSlider" />
+        </div>
+        <div class="ac-slider-row">
+          <div class="ac-slider-label">
+            <span>Conversion rate
+              <span class="ac-info" tabindex="0">i<span class="ac-tip">The share of AI-handled leads that actually turn
+                  into tours, applications, or leases. Low conversion means the AI is running but the output is not
+                  materializing into revenue.</span></span>
+            </span>
+            <span class="ac-slider-value"><span id="crVal">20</span>%</span>
+          </div>
+          <input type="range" min="0" max="50" step="1" value="20" id="crSlider" />
+        </div>
+        <p class="ac-controls-note">Sliders divide the portfolio into four quadrants. Each quadrant maps to a category,
+          a default owner, and a playbook.</p>
+      </div>
+
+      <div class="ac-scatter-wrap">
+        <div class="ac-scatter-head">
+          <h3>Portfolio map
+            <span class="ac-info" tabindex="0">i<span class="ac-tip">Every dot is one property. Position shows adoption
+                on the x-axis and conversion on the y-axis. Color shows category. Dashed lines are your current
+                thresholds. Click any dot to open that property in the action panel below.</span></span>
+          </h3>
+        </div>
+        <div class="ac-scatter" id="scatterWrap"></div>
+      </div>
+    </div>
+
+    <div class="ac-filters">
+      <select id="filterOwner">
+        <option value="">All owners</option>
+        <option value="ally">Ally Martinelli</option>
+        <option value="olivia">Olivia Sell</option>
+        <option value="chris">Chris Anderson</option>
+        <option value="jonny">Jonny Hou</option>
+        <option value="sonia">Sonia Mody</option>
+      </select>
+      <input type="text" id="filterSearch" placeholder="Search property name..." />
+      <label>
+        <input type="checkbox" id="filterDone" />
+        Show completed
+      </label>
+    </div>
+
+    <div class="ac-table-wrap">
+      <table class="ac-table">
+        <thead>
+          <tr>
+            <th style="width:22%;">Property</th>
+            <th class="ac-num" style="width:6%;">UA</th>
+            <th class="ac-num" style="width:6%;">CR</th>
+            <th style="width:15%;">Category
+              <span class="ac-info" tabindex="0" style="vertical-align: middle;">i<span class="ac-tip">Automatically
+                  computed from the two threshold sliders. Category determines the default owner, the suggested action,
+                  and the playbook.</span></span>
+            </th>
+            <th style="width:18%;">Suggested action
+              <span class="ac-info" tabindex="0" style="vertical-align: middle;">i<span class="ac-tip">The first move
+                  the default owner should make. Full playbook appears in the action panel when you click a
+                  row.</span></span>
+            </th>
+            <th style="width:17%;">Owner
+              <span class="ac-info" tabindex="0" style="vertical-align: middle;">i<span class="ac-tip">Starts as the
+                  default owner for that category. Change it inline if someone else is taking the case.</span></span>
+            </th>
+            <th style="width:16%;">Status</th>
+          </tr>
+        </thead>
+        <tbody id="caseBody"></tbody>
+      </table>
+    </div>
+
+    <div id="actionPanel"></div>
+
+    <p class="ac-footnote">This component reads uploaded CSV data from its <code>model.data</code> prop. In Retool, bind
+      <code>accountCompass</code>'s model property to <code>{{ { data: csvUpload.parsedValue[0] } }}</code>. Expected
+      columns: <code>Property Name</code>, <code>User Adoption (%)</code>, <code>Conversion Rate (%)</code>.</p>
+  </div>
+
+  <script>
+    (function () {
+      var properties = [{ "name": "Serenity Heights", "ua": 5, "cr": 1 }, { "name": "Radiant Tower", "ua": 9, "cr": 2 }, { "name": "Whispering Pines Hall", "ua": 14, "cr": 3 }, { "name": "Nexus Plaza", "ua": 12, "cr": 4 }, { "name": "Tranquil Haven", "ua": 18, "cr": 5 }, { "name": "Celestial Pavilion", "ua": 11, "cr": 6 }, { "name": "Harmony Manor", "ua": 3, "cr": 7 }, { "name": "Enigma House", "ua": 2, "cr": 8 }, { "name": "Beacon Pointe", "ua": 16, "cr": 9 }, { "name": "Velvet Skies Residence", "ua": 6, "cr": 10 }, { "name": "Crystal Cascade Tower", "ua": 20, "cr": 11 }, { "name": "Aurora Gardens Complex", "ua": 7, "cr": 12 }, { "name": "Elysium Court", "ua": 4, "cr": 13 }, { "name": "Solstice Mansion", "ua": 13, "cr": 14 }, { "name": "Cascade View Suites", "ua": 10, "cr": 15 }, { "name": "Nebula Nexus", "ua": 21, "cr": 16 }, { "name": "Royal Ember Building", "ua": 17, "cr": 17 }, { "name": "Ethereal Echo House", "ua": 15, "cr": 18 }, { "name": "Velvet Moonrise Apartments", "ua": 19, "cr": 19 }, { "name": "Mystique Enclave", "ua": 8, "cr": 20 }, { "name": "Arcane Quarters", "ua": 1, "cr": 21 }, { "name": "Opulent Oasis Tower", "ua": 31, "cr": 22 }, { "name": "Emberglow Manor", "ua": 32, "cr": 23 }, { "name": "Azure Haven Residence", "ua": 36, "cr": 24 }, { "name": "Luminous Peaks Hall", "ua": 30, "cr": 25 }, { "name": "Mirage Crest Plaza", "ua": 37, "cr": 26 }, { "name": "Ivory Citadel", "ua": 24, "cr": 27 }, { "name": "Sapphire Shores Mansion", "ua": 80, "cr": 28 }, { "name": "Verdant Valley Complex", "ua": 66, "cr": 29 }, { "name": "Whisperwind Heights", "ua": 70, "cr": 30 }, { "name": "Radiant Orchid House", "ua": 61, "cr": 31 }, { "name": "Enchanted Ivy Tower", "ua": 79, "cr": 32 }, { "name": "Echoing Waves Apartments", "ua": 78, "cr": 33 }, { "name": "Twilight Terrace", "ua": 72, "cr": 34 }, { "name": "Crimson Crest Residence", "ua": 62, "cr": 35 }, { "name": "Enigma Echo Building", "ua": 64, "cr": 36 }, { "name": "Amethyst Arbor Hall", "ua": 65, "cr": 37 }, { "name": "Starlight Sanctuary", "ua": 82, "cr": 38 }, { "name": "Velvet Rosewood Manor", "ua": 90, "cr": 39 }, { "name": "Celestial Serenity Tower", "ua": 83, "cr": 40 }, { "name": "Emberwood Estate", "ua": 98, "cr": 41 }, { "name": "Sapphire Springs Plaza", "ua": 77, "cr": 42 }, { "name": "Tranquil Twilight Complex", "ua": 74, "cr": 43 }, { "name": "Aurora Breeze House", "ua": 92, "cr": 44 }, { "name": "Ethereal Elegance Residence", "ua": 90, "cr": 45 }, { "name": "Whispering Willow Tower", "ua": 99, "cr": 46 }, { "name": "Opal Oasis Apartments", "ua": 97, "cr": 47 }, { "name": "Enchanted Eden Hall", "ua": 89, "cr": 48 }, { "name": "Mystique Mirage Mansion", "ua": 94, "cr": 49 }, { "name": "Radiant Ripples Lodge", "ua": 93, "cr": 50 }];
+
+      var team = [
+        { id: 'ally', name: 'Ally Martinelli', role: 'CSM, retention', initials: 'AM', email: 'ally@meetelise.com', desc: 'Owns churn-risk accounts. Runs save calls, EBRs, and direct outreach to leadership. First line of defense on at-risk renewals.' },
+        { id: 'olivia', name: 'Olivia Sell', role: 'Director, solutions engineering', initials: 'OS', email: 'olivia@meetelise.com', desc: 'Owns stuck accounts at the director level. Prioritizes the queue, escalates to product, and decides which technical issues get engineering hours this week.' },
+        { id: 'chris', name: 'Chris Anderson', role: 'Sr. solutions engineer', initials: 'CA', email: 'chris.anderson@meetelise.com', desc: 'Executes on stuck-account investigations. Audits AI config, pulls conversation logs, diagnoses failure modes, and ships the fix or the workaround.' },
+        { id: 'jonny', name: 'Jonny Hou', role: 'Adoption specialist', initials: 'JH', email: 'jonny@meetelise.com', desc: 'Owns sleeping-champion accounts. Runs training sessions, identifies internal champions at client orgs, and drives day-to-day usage upward.' },
+        { id: 'sonia', name: 'Sonia Mody', role: 'AE, expansion', initials: 'SM', email: 'sonia@meetelise.com', desc: 'Owns reference-customer relationships. Opens expansion conversations, collects case studies, and works referrals.' }
+      ];
+      var teamById = {}; team.forEach(function (t) { teamById[t.id] = t; });
+
+      var categories = {
+        churn: {
+          label: 'Churn risk', color: 'danger', defaultOwner: 'ally', action: 'Schedule save call', priority: 1,
+          short: 'Low adoption and low conversion. The team is not using the product and the product is not producing. This is a real save-or-lose situation and it gets a CSM on the phone fast.',
+          expect: 'Outcome: save the account or get a clean read on why we lost it.',
+          playbook: ['Schedule an executive save call within 7 days', 'Pull conversation logs and identify the specific failure modes', 'Book an EBR with their leadership for the following week', 'If no response in 5 days, escalate to your director']
+        },
+        stuck: {
+          label: 'Stuck', color: 'warning', defaultOwner: 'olivia', action: 'Open SE ticket', priority: 2,
+          short: 'High adoption but low conversion. The team is engaged and the product is running, but the output is not converting. This is a technical problem, not a relationship one.',
+          expect: 'Outcome: diagnose the config or integration issue and ship a fix within 2 weeks.',
+          playbook: ['Open a Solutions Engineering ticket with full context and logs', 'Audit AI configuration, integrations, and source mapping', 'Pull a sample of failed conversions and tag the failure type', 'Book a 30-minute technical review with their ops lead this week']
+        },
+        sleeping: {
+          label: 'Sleeping champion', color: 'info', defaultOwner: 'jonny', action: 'Drive adoption', priority: 3,
+          short: 'Low adoption but high conversion. The product is already producing results, and the team barely knows it. This is the highest-upside category in the portfolio because you can double their value without changing the product.',
+          expect: 'Outcome: get the client team actively using EliseAI within 30 days and unlock the expansion conversation.',
+          playbook: ['Identify the team member best positioned to be an internal champion', 'Book a 45-minute training session for the wider leasing team', 'Send a one-pager to their leadership showing the conversion results', 'Set a follow-up review for adoption metrics in 14 days']
+        },
+        reference: {
+          label: 'Reference customer', color: 'success', defaultOwner: 'sonia', action: 'Ask for referral', priority: 4,
+          short: 'High adoption and high conversion. Both numbers are green. These are your strongest accounts and they are the engine for expansion, case studies, and referrals.',
+          expect: 'Outcome: one referral or one expansion conversation per quarter per account.',
+          playbook: ['Send a referral request and ask for one warm intro', 'Offer to feature them as a case study (with approval)', 'Open an expansion conversation: more buildings, ResidentAI, VoiceAI', 'Confirm renewal terms 90 days before contract end']
+        }
+      };
+
+      var statuses = {
+        'Open': 'Nothing has happened yet. The case is waiting on its owner to make the first move.',
+        'In progress': 'The owner has started the playbook. Outreach is out, a meeting is booked, or the technical review is underway.',
+        'Done': 'The playbook is complete and the outcome is recorded. A done case stays in the tool for reference but drops out of the default view.'
+      };
+
+      var colorVar = { danger: 'var(--color-text-danger)', warning: 'var(--color-text-warning)', info: 'var(--color-text-info)', success: 'var(--color-text-success)' };
+
+      var thresholds = { ua: 30, cr: 20 };
+      var caseState = {};
+      function initCaseState() {
+        caseState = {};
+        properties.forEach(function (p) { caseState[p.name] = { owner: null, status: 'Open', notes: '' }; });
+      }
+      initCaseState();
+      var selectedProperty = null;
+      var filters = { owner: '', search: '', showDone: false };
+
+      function categorize(p) {
+        var ua = p.ua >= thresholds.ua;
+        var cr = p.cr >= thresholds.cr;
+        if (!ua && !cr) return 'churn';
+        if (ua && !cr) return 'stuck';
+        if (!ua && cr) return 'sleeping';
+        return 'reference';
+      }
+
+      function ownerOf(p) {
+        var cs = caseState[p.name];
+        if (cs && cs.owner) return cs.owner;
+        return categories[categorize(p)].defaultOwner;
+      }
+
+      function visibleProperties() {
+        return properties.filter(function (p) {
+          var own = ownerOf(p);
+          var stat = caseState[p.name].status;
+          if (filters.owner && filters.owner !== own) return false;
+          if (!filters.showDone && stat === 'Done') return false;
+          if (filters.search && p.name.toLowerCase().indexOf(filters.search.toLowerCase()) === -1) return false;
+          return true;
+        }).sort(function (a, b) {
+          var ca = categories[categorize(a)].priority;
+          var cb = categories[categorize(b)].priority;
+          if (ca !== cb) return ca - cb;
+          return (a.ua + a.cr) - (b.ua + b.cr);
+        });
+      }
+
+      function renderScatter() {
+        var W = 560, H = 300, padL = 42, padR = 14, padT = 18, padB = 38;
+        var plotW = W - padL - padR, plotH = H - padT - padB;
+        var xMin = 0, xMax = 100, yMin = 0, yMax = 50;
+        var xToPx = function (v) { return padL + (v - xMin) / (xMax - xMin) * plotW; };
+        var yToPx = function (v) { return padT + plotH - (v - yMin) / (yMax - yMin) * plotH; };
+        var xThresh = xToPx(thresholds.ua);
+        var yThresh = yToPx(thresholds.cr);
+
+        var counts = { churn: 0, stuck: 0, sleeping: 0, reference: 0 };
+        properties.forEach(function (p) { counts[categorize(p)]++; });
+
+        var dots = '';
+        properties.forEach(function (p) {
+          var cat = categorize(p);
+          var cx = xToPx(p.ua), cy = yToPx(p.cr);
+          var sel = selectedProperty === p.name;
+          var r = sel ? 7 : 5;
+          dots += '<circle data-name="' + p.name + '" cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + colorVar[categories[cat].color] + '" stroke="var(--color-background-primary)" stroke-width="' + (sel ? 2 : 1.2) + '" style="cursor:pointer">';
+          dots += '<title>' + p.name + ' — UA ' + p.ua + '%, CR ' + p.cr + '%</title></circle>';
+          if (sel) dots += '<circle cx="' + cx + '" cy="' + cy + '" r="11" fill="none" stroke="' + colorVar[categories[cat].color] + '" stroke-width="1" opacity="0.5"/>';
+        });
+
+        var xTicks = [0, 25, 50, 75, 100];
+        var yTicks = [0, 10, 20, 30, 40, 50];
+        var xTickStr = xTicks.map(function (v) { return '<text x="' + xToPx(v) + '" y="' + (H - padB + 14) + '" font-size="9" fill="var(--color-text-tertiary)" text-anchor="middle">' + v + '</text>'; }).join('');
+        var yTickStr = yTicks.map(function (v) { return '<text x="' + (padL - 6) + '" y="' + (yToPx(v) + 3) + '" font-size="9" fill="var(--color-text-tertiary)" text-anchor="end">' + v + '</text>'; }).join('');
+
+        var labelY = padT + 14;
+        var labelY2 = padT + plotH - 6;
+        var labelL = (padL + xThresh) / 2;
+        var labelR = (xThresh + padL + plotW) / 2;
+        var quadLabel = function (x, y, text, count, color) { return '<text x="' + x + '" y="' + y + '" font-size="10" fill="' + colorVar[color] + '" text-anchor="middle" font-weight="500">' + text + ' · ' + count + '</text>'; };
+
+        var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">' +
+          '<rect x="' + padL + '" y="' + padT + '" width="' + (xThresh - padL) + '" height="' + (yThresh - padT) + '" fill="var(--color-background-info)" opacity="0.35"/>' +
+          '<rect x="' + xThresh + '" y="' + padT + '" width="' + (padL + plotW - xThresh) + '" height="' + (yThresh - padT) + '" fill="var(--color-background-success)" opacity="0.45"/>' +
+          '<rect x="' + padL + '" y="' + yThresh + '" width="' + (xThresh - padL) + '" height="' + (padT + plotH - yThresh) + '" fill="var(--color-background-danger)" opacity="0.35"/>' +
+          '<rect x="' + xThresh + '" y="' + yThresh + '" width="' + (padL + plotW - xThresh) + '" height="' + (padT + plotH - yThresh) + '" fill="var(--color-background-warning)" opacity="0.4"/>' +
+          '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--color-border-tertiary)" stroke-width="0.5"/>' +
+          '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="var(--color-border-tertiary)" stroke-width="0.5"/>' +
+          '<line x1="' + xThresh + '" y1="' + padT + '" x2="' + xThresh + '" y2="' + (padT + plotH) + '" stroke="var(--color-text-secondary)" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>' +
+          '<line x1="' + padL + '" y1="' + yThresh + '" x2="' + (padL + plotW) + '" y2="' + yThresh + '" stroke="var(--color-text-secondary)" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>' +
+          quadLabel(labelL, labelY, 'Sleeping', counts.sleeping, 'info') +
+          quadLabel(labelR, labelY, 'Reference', counts.reference, 'success') +
+          quadLabel(labelL, labelY2, 'Churn risk', counts.churn, 'danger') +
+          quadLabel(labelR, labelY2, 'Stuck', counts.stuck, 'warning') +
+          xTickStr + yTickStr +
+          '<text x="' + (padL + plotW / 2) + '" y="' + (H - 4) + '" font-size="10" fill="var(--color-text-secondary)" text-anchor="middle">User adoption (%)</text>' +
+          '<text x="12" y="' + (padT + plotH / 2) + '" font-size="10" fill="var(--color-text-secondary)" text-anchor="middle" transform="rotate(-90, 12, ' + (padT + plotH / 2) + ')">Conversion (%)</text>' +
+          dots + '</svg>';
+        document.getElementById('scatterWrap').innerHTML = svg;
+        var circles = document.querySelectorAll('#scatterWrap circle[data-name]');
+        circles.forEach(function (c) { c.addEventListener('click', function () { selectProperty(c.getAttribute('data-name')); }); });
+      }
+
+      function renderTable() {
+        var rows = visibleProperties();
+        if (rows.length === 0) {
+          document.getElementById('caseBody').innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 24px; color: var(--color-text-tertiary);">No cases match the current filters.</td></tr>';
+          return;
+        }
+        document.getElementById('caseBody').innerHTML = rows.map(function (p) {
+          var cat = categorize(p);
+          var c = categories[cat];
+          var own = ownerOf(p);
+          var stat = caseState[p.name].status;
+          var sel = selectedProperty === p.name ? 'selected' : '';
+          var ownerOpts = team.map(function (t) { return '<option value="' + t.id + '"' + (t.id === own ? ' selected' : '') + '>' + t.name + '</option>'; }).join('');
+          var statusOpts = ['Open', 'In progress', 'Done'].map(function (s) { return '<option value="' + s + '"' + (s === stat ? ' selected' : '') + '>' + s + '</option>'; }).join('');
+          return '<tr class="' + sel + '" data-name="' + p.name + '">' +
+            '<td title="' + p.name + '">' + p.name + '</td>' +
+            '<td class="ac-num">' + p.ua + '%</td>' +
+            '<td class="ac-num">' + p.cr + '%</td>' +
+            '<td><span class="ac-badge ac-badge-' + cat + '">' + c.label + '</span></td>' +
+            '<td title="' + c.action + '">' + c.action + '</td>' +
+            '<td><select data-action="owner" data-name="' + p.name + '">' + ownerOpts + '</select></td>' +
+            '<td><select data-action="status" data-name="' + p.name + '">' + statusOpts + '</select></td>' +
+            '</tr>';
+        }).join('');
+        document.querySelectorAll('#caseBody tr[data-name]').forEach(function (tr) {
+          tr.addEventListener('click', function (e) {
+            if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return;
+            selectProperty(tr.getAttribute('data-name'));
+          });
+        });
+        document.querySelectorAll('#caseBody select').forEach(function (s) {
+          s.addEventListener('click', function (e) { e.stopPropagation(); });
+          s.addEventListener('change', function () {
+            var name = s.getAttribute('data-name');
+            var action = s.getAttribute('data-action');
+            if (action === 'owner') caseState[name].owner = s.value;
+            if (action === 'status') caseState[name].status = s.value;
+            renderTable();
+            if (selectedProperty === name) renderActionPanel();
+          });
+        });
+      }
+
+      function outreachDraft(p, cat) {
+        var owner = teamById[ownerOf(p)];
+        if (cat === 'churn') {
+          return 'Subject: ' + p.name + ' — quick check-in on your EliseAI rollout\n\nHi [name],\n\nWanted to reach out directly. Looking at our metrics for ' + p.name + ', user adoption is sitting at ' + p.ua + '% and conversion at ' + p.cr + '%, both well below where I would want them this far into the contract.\n\nI do not think this is a product issue. I think it is a rollout one. I would like to get a 30-minute call on the calendar this week with you and whoever owns the leasing team day-to-day. I want to walk through what is happening and figure out together whether it is a training gap, a workflow mismatch, or something we can fix in your config.\n\nWould Tuesday or Thursday afternoon work?\n\n— ' + owner.name + ', ' + owner.role + '\nEliseAI';
+        }
+        if (cat === 'stuck') {
+          return 'Subject: Solutions engineering review needed — ' + p.name + '\n\nHi Olivia and Chris,\n\nFlagging ' + p.name + ' for an SE review.\n\nContext\n' + p.name + ' is showing healthy user adoption (' + p.ua + '%) but conversion has stalled at ' + p.cr + '%. The team is engaged with the product. The product is not converting their leads.\n\nAsks\n1. Audit AI configuration for this property: source mappings, response templates, business rules\n2. Pull a sample of 25 recent conversations that did not convert and tag the failure mode\n3. Cross-check integration health with their CRM\n4. Confirm whether any recent product changes correlate with the drop\n\nI will book a 30-minute joint review with their ops lead once initial findings are in.\n\nThanks,\n' + owner.name;
+        }
+        if (cat === 'sleeping') {
+          return 'Subject: ' + p.name + ' — your EliseAI numbers look great, want to share them?\n\nHi [name],\n\nQuick note. I was looking at our shared dashboard and ' + p.name + ' is one of our better-performing properties on the conversion side, sitting at ' + p.cr + '%. The thing is, only ' + p.ua + '% of your team is actively using the platform day to day.\n\nThere is a real upside here. If we can get more of your leasing team into the product, you are looking at meaningfully better lead handling without changing anything else. I would love to set up a 45-minute training session for whoever wants to join and put together a one-pager you can share upward to show what the product is already doing for you.\n\nCould I grab 15 minutes this week to plan it?\n\n— ' + owner.name + ', ' + owner.role + '\nEliseAI';
+        }
+        return 'Subject: ' + p.name + ' — small ask and a thank you\n\nHi [name],\n\nI will keep this short. ' + p.name + ' is one of our strongest performers right now (' + p.ua + '% adoption, ' + p.cr + '% conversion), and I wanted to thank you and your team for the work you have put into making the rollout go this well.\n\nTwo things, when you have a moment:\n\n1. We are putting together case studies for properties that have gotten real value out of EliseAI. Would you be open to us featuring ' + p.name + '? Happy to draft everything and let you approve.\n\n2. If you know any operators in your network who might benefit from what we have built together, a warm intro would mean a lot. No pressure, but it is the highest compliment we can get.\n\n— ' + owner.name + ', ' + owner.role + '\nEliseAI';
+      }
+
+      function parseDraft(draft) {
+        var lines = draft.split('\n');
+        var first = lines[0];
+        if (first.indexOf('Subject:') === 0) {
+          return { subject: first.replace('Subject:', '').trim(), body: lines.slice(1).join('\n').trim() };
+        }
+        return { subject: 'Regarding this case', body: draft };
+      }
+
+      function buildMailto(cat, draft) {
+        var parsed = parseDraft(draft);
+        var to = '';
+        if (cat === 'stuck') to = 'olivia@meetelise.com,chris.anderson@meetelise.com';
+        return 'mailto:' + to + '?subject=' + encodeURIComponent(parsed.subject) + '&body=' + encodeURIComponent(parsed.body);
+      }
+
+      function copyToClipboard(text, btn) {
+        var done = function () {
+          var original = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(function () { btn.textContent = original; }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () {
+            var ta = document.createElement('textarea');
+            ta.value = text; document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); done(); } catch (e) { }
+            document.body.removeChild(ta);
+          });
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); done(); } catch (e) { }
+          document.body.removeChild(ta);
+        }
+      }
+
+      function renderActionPanel() {
+        var wrap = document.getElementById('actionPanel');
+        if (!selectedProperty) {
+          wrap.innerHTML = '<div class="ac-panel"><div class="ac-panel-empty">Click any dot on the scatter plot or any row in the table to open a case.</div></div>';
+          return;
+        }
+        var p = null;
+        for (var i = 0; i < properties.length; i++) { if (properties[i].name === selectedProperty) { p = properties[i]; break; } }
+        if (!p) { wrap.innerHTML = ''; return; }
+        var cat = categorize(p);
+        var c = categories[cat];
+        var own = ownerOf(p);
+        var cs = caseState[p.name];
+        var ownerOpts = team.map(function (t) { return '<option value="' + t.id + '"' + (t.id === own ? ' selected' : '') + '>' + t.name + ' — ' + t.role + '</option>'; }).join('');
+        var statusOpts = ['Open', 'In progress', 'Done'].map(function (s) { return '<option value="' + s + '"' + (s === cs.status ? ' selected' : '') + '>' + s + '</option>'; }).join('');
+        var playbookHTML = c.playbook.map(function (item) { return '<li>' + item + '</li>'; }).join('');
+        var draft = outreachDraft(p, cat);
+        var mailtoHref = buildMailto(cat, draft);
+        var primaryLabel = cat === 'stuck' ? 'Email Solutions Engineering' : 'Open draft in mail client';
+
+        wrap.innerHTML = '<div class="ac-panel"><div class="ac-panel-grid">' +
+          '<div>' +
+          '<h3 class="ac-panel-name">' + p.name + '</h3>' +
+          '<p class="ac-panel-meta"><span class="ac-badge ac-badge-' + cat + '">' + c.label + '</span>' +
+          '<span class="ac-info" tabindex="0">i<span class="ac-tip">' + c.short + ' ' + c.expect + '</span></span></p>' +
+          '<div class="ac-panel-metrics">' +
+          '<div class="ac-metric"><div class="ac-metric-label">User adoption</div><div class="ac-metric-value">' + p.ua + '%</div></div>' +
+          '<div class="ac-metric"><div class="ac-metric-label">Conversion rate</div><div class="ac-metric-value">' + p.cr + '%</div></div>' +
+          '</div>' +
+          '<p class="ac-section-label">Playbook<span class="ac-info" tabindex="0">i<span class="ac-tip">The concrete steps the owner should take for this category. Work through them top to bottom.</span></span></p>' +
+          '<ol class="ac-playbook">' + playbookHTML + '</ol>' +
+          '<div class="ac-form-row">' +
+          '<div><label>Owner<span class="ac-info" tabindex="0">i<span class="ac-tip">Pre-filled with the default owner for this category. Reassign if needed.</span></span></label><select id="panelOwner">' + ownerOpts + '</select></div>' +
+          '<div><label>Status<span class="ac-info" tabindex="0">i<span class="ac-tip">Open = not started. In progress = playbook underway. Done = completed and archived from the default view.</span></span></label><select id="panelStatus">' + statusOpts + '</select></div>' +
+          '</div>' +
+          '<label style="display:flex;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:var(--color-text-secondary);margin-bottom:4px;font-weight:500;">Internal notes</label>' +
+          '<textarea class="ac-notes" id="panelNotes" placeholder="Add a note for whoever picks this up next...">' + cs.notes + '</textarea>' +
+          '</div>' +
+          '<div>' +
+          '<p class="ac-section-label">Suggested outreach<span class="ac-info ac-info-r" tabindex="0">i<span class="ac-tip">Templated based on the property category and metrics. Click open-in-mail-client to pop it into your default email app with the subject and body pre-filled. Edit and send.</span></span></p>' +
+          '<div class="ac-outreach"><pre>' + draft.replace(/</g, '&lt;') + '</pre></div>' +
+          '<div class="ac-outreach-actions">' +
+          '<a class="primary" href="' + mailtoHref + '" id="panelMailto">' + primaryLabel + ' ↗</a>' +
+          '<button id="panelCopy" type="button">Copy draft</button>' +
+          '</div>' +
+          '</div>' +
+          '</div></div>';
+
+        document.getElementById('panelOwner').addEventListener('change', function (e) {
+          caseState[p.name].owner = e.target.value;
+          renderTable(); renderActionPanel();
+        });
+        document.getElementById('panelStatus').addEventListener('change', function (e) {
+          caseState[p.name].status = e.target.value;
+          renderTable(); renderActionPanel();
+        });
+        document.getElementById('panelNotes').addEventListener('input', function (e) {
+          caseState[p.name].notes = e.target.value;
+        });
+        document.getElementById('panelCopy').addEventListener('click', function () {
+          copyToClipboard(draft, this);
+        });
+      }
+
+      function renderGuide() {
+        var wrap = document.getElementById('guidePanel');
+        var catCards = Object.keys(categories).map(function (key) {
+          var c = categories[key];
+          var owner = teamById[c.defaultOwner];
+          return '<div class="ac-guide-card"><div class="ac-guide-card-head"><span class="ac-badge ac-badge-' + key + '">' + c.label + '</span></div><p>' + c.short + '</p><p class="expect">' + c.expect + ' · Default owner: ' + owner.name + '</p></div>';
+        }).join('');
+        var statusCards = Object.keys(statuses).map(function (key) {
+          return '<div class="ac-guide-card"><div class="ac-guide-card-head"><span style="font-size:13px; font-weight:500;">' + key + '</span></div><p>' + statuses[key] + '</p></div>';
+        }).join('');
+        var roleRows = team.map(function (t) {
+          return '<div class="ac-role-row"><div class="ac-role-avatar">' + t.initials + '</div><div class="ac-role-info"><div class="ac-role-name">' + t.name + '</div><div class="ac-role-role">' + t.role + '</div><div class="ac-role-desc">' + t.desc + '</div></div></div>';
+        }).join('');
+        wrap.innerHTML = '<div class="ac-guide"><h3>Reference guide</h3><p class="ac-guide-subtitle">Everything you need to know to use Account Compass. The i icons around the interface link back to the definitions here.</p>' +
+          '<div class="ac-guide-section"><p class="ac-guide-section-title">The four categories</p><div class="ac-guide-grid">' + catCards + '</div></div>' +
+          '<div class="ac-guide-section"><p class="ac-guide-section-title">Statuses</p><div class="ac-guide-grid">' + statusCards + '</div></div>' +
+          '<div class="ac-guide-section"><p class="ac-guide-section-title">Team and default ownership</p>' + roleRows + '</div></div>';
+      }
+
+      function selectProperty(name) {
+        selectedProperty = name;
+        renderTable();
+        renderActionPanel();
+        renderScatter();
+        var panel = document.getElementById('actionPanel');
+        if (panel && panel.scrollIntoView) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function renderAll() {
+        renderScatter();
+        renderTable();
+        renderActionPanel();
+      }
+
+      document.getElementById('uaSlider').addEventListener('input', function (e) {
+        thresholds.ua = parseInt(e.target.value);
+        document.getElementById('uaVal').textContent = thresholds.ua;
+        renderAll();
+      });
+      document.getElementById('crSlider').addEventListener('input', function (e) {
+        thresholds.cr = parseInt(e.target.value);
+        document.getElementById('crVal').textContent = thresholds.cr;
+        renderAll();
+      });
+      document.getElementById('filterOwner').addEventListener('change', function (e) { filters.owner = e.target.value; renderTable(); });
+      document.getElementById('filterSearch').addEventListener('input', function (e) { filters.search = e.target.value; renderTable(); });
+      document.getElementById('filterDone').addEventListener('change', function (e) { filters.showDone = e.target.checked; renderTable(); });
+
+      try {
+        if (localStorage.getItem('accountCompass_walkthroughDismissed') === 'true') {
+          document.getElementById('walkthrough').style.display = 'none';
+        }
+      } catch (e) { }
+      document.getElementById('walkthroughClose').addEventListener('click', function () {
+        document.getElementById('walkthrough').style.display = 'none';
+        try { localStorage.setItem('accountCompass_walkthroughDismissed', 'true'); } catch (e) { }
+      });
+
+      var guideOpen = false;
+      renderGuide();
+      document.getElementById('guideToggle').addEventListener('click', function () {
+        guideOpen = !guideOpen;
+        var panel = document.getElementById('guidePanel');
+        panel.style.display = guideOpen ? 'block' : 'none';
+        document.getElementById('guideToggle').textContent = guideOpen ? 'Hide reference' : 'Reference guide';
+        if (guideOpen) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      renderAll();
+
+      /* =====================================================================
+         RETOOL HOOKUP
+         In Retool, create a File Dropzone component named "csvUpload" and a
+         Custom Component named "accountCompass". Set the Custom Component's
+         "model" property to:
+             {{ { data: csvUpload.parsedValue[0] } }}
+         When a CSV is uploaded, Retool pushes its parsed contents into this
+         iframe via window.Retool.subscribe. The applyModel function below
+         maps the CSV columns (Property Name, User Adoption (%), Conversion
+         Rate (%)) to the internal shape and re-renders. Before any upload,
+         the hardcoded properties array above is used as a fallback so the
+         tool is never blank.
+         ===================================================================== */
+      function applyModel(model) {
+        if (!model || !model.data || !Array.isArray(model.data) || model.data.length === 0) return;
+        var mapped = model.data.map(function (row) {
+          return {
+            name: row['Property Name'] || row.name || row.Property || 'Unknown',
+            ua: Number(row['User Adoption (%)'] || row['User Adoption'] || row.ua || 0),
+            cr: Number(row['Conversion Rate (%)'] || row['Conversion Rate'] || row.cr || 0)
+          };
+        }).filter(function (p) { return p.name && p.name !== 'Unknown' && !isNaN(p.ua) && !isNaN(p.cr); });
+        if (mapped.length === 0) return;
+        properties = mapped;
+        initCaseState();
+        selectedProperty = null;
+        renderAll();
+      }
+      if (typeof window !== 'undefined' && window.Retool && typeof window.Retool.subscribe === 'function') {
+        try { window.Retool.subscribe(function (model) { applyModel(model); }); } catch (e) { }
+      }
+      window.addEventListener('message', function (e) {
+        if (e.data && e.data.model) applyModel(e.data.model);
+      });
+
+      /* =====================================================================
+         CSV-FROM-URL SUPPORT
+         When the page is loaded with ?csvUrl=<url>, fetch that CSV, parse it,
+         and feed the rows into applyModel so the tool shows real data instead
+         of hardcoded demo properties.
+         ===================================================================== */
+      function getQueryParam(name) {
+        try {
+          return new URLSearchParams(window.location.search).get(name);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // Robust CSV parsing using PapaParse if available, otherwise a tiny fallback
+      function parseCsvText(text) {
+        // If PapaParse is available in the iframe, use it (most robust)
+        if (typeof Papa !== 'undefined' && Papa.parse) {
+          var result = Papa.parse(text, { header: true, skipEmptyLines: true });
+          return result.data || [];
+        }
+
+        // Minimal fallback parser (works for simple CSVs)
+        var lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter(Boolean);
+        if (lines.length < 2) return [];
+
+        var splitRow = function (row) {
+          var out = [];
+          var cur = '', inQ = false;
+          for (var i = 0; i < row.length; i++) {
+            var ch = row[i];
+            if (ch === '"' && row[i + 1] === '"') { cur += '"'; i++; continue; }
+            if (ch === '"') { inQ = !inQ; continue; }
+            if (ch === ',' && !inQ) { out.push(cur); cur = ''; continue; }
+            cur += ch;
+          }
+          out.push(cur);
+          return out.map(function (s) { return s.trim(); });
+        };
+
+        var headers = splitRow(lines[0]);
+        return lines.slice(1).map(function (line) {
+          var cells = splitRow(line);
+          var obj = {};
+          headers.forEach(function (h, idx) { obj[h] = cells[idx] || ''; });
+          return obj;
+        });
+      }
+
+      function loadCsvFromUrl(csvUrl) {
+        return fetch(csvUrl)
+          .then(function (res) { return res.text(); })
+          .then(function (text) {
+            var rows = parseCsvText(text);
+            applyModel({ data: rows });
+          });
+      }
+
+      // Boot: if csvUrl is present, load it
+      var csvUrl = getQueryParam('csvUrl');
+      if (csvUrl) {
+        loadCsvFromUrl(csvUrl).catch(function () { });
+      }
+    })();
+  </script>
+</body>
+
+</html>
