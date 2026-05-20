@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: #C3B8F0;
+    color: #1F1A66;
+  }
+}
+
+@layer components {
+  .label-eyebrow {
+    @apply text-2xs uppercase tracking-[0.06em] text-ink-500 font-medium;
+  }
+  .panel {
+    @apply bg-surface-50 border border-surface-200 rounded-lg;
+  }
+  .panel-flat {
+    @apply bg-surface-0 border border-surface-200 rounded-lg;
+  }
+  .btn {
+    @apply inline-flex items-center gap-1.5 text-13 font-medium rounded-md px-3 py-1.5 border transition-colors;
+  }
+  .btn-primary {
+    @apply btn bg-brand-700 text-white border-brand-700 hover:bg-brand-600;
+  }
+  .btn-outline {
+    @apply btn bg-surface-0 text-ink-900 border-surface-200 hover:bg-surface-50;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-ink-700 border-transparent hover:bg-surface-100;
+  }
+  .input {
+    @apply w-full bg-surface-0 border border-surface-200 rounded-md px-2.5 py-1.5 text-13 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 text-2xs font-medium px-2 py-0.5 rounded-full;
+  }
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #EFEFF5;
+  border-radius: 999px;
+  outline: none;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #534AB7;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #C8C8D4;
+}
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #534AB7;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #C8C8D4;
+}
+
+/* Caret blink for streaming text */
+@keyframes pulseCaret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.streaming-caret::after {
+  content: '▍';
+  margin-left: 1px;
+  color: #534AB7;
+  animation: pulseCaret 1s steps(1) infinite;
+}
