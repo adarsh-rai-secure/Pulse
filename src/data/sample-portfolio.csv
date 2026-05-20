@@ -1,0 +1,53 @@
+Property Name,City,Units,User Adoption (%),Conversion Rate (%),Notes
+Ashford Terrace,"Atlanta, GA",280,8,3,Client POC changed last month. New contact has not responded to two outreach attempts.
+Meridian Lofts,"Denver, CO",156,12,6,
+Cypress Point Apartments,"Jacksonville, FL",340,5,2,Leasing office turnover. Three new hires in the last 60 days. Nobody trained on the platform.
+Harborview Landing,"Charleston, SC",198,22,11,
+Ironwood Flats,"Phoenix, AZ",264,3,1,Contract is up in 90 days. No engagement from the property manager since January.
+Summit Ridge,"Salt Lake City, UT",142,18,8,
+Prairie Wind Estates,"Omaha, NE",96,9,14,
+Stonegate Commons,"Memphis, TN",310,14,4,Support ticket open since March for lead source mapping failure. SE team has not responded.
+Willow Creek Village,"Indianapolis, IN",178,27,7,
+Magnolia Crossing,"Savannah, GA",112,6,9,
+Copper Ridge Apartments,"Tucson, AZ",204,11,5,Regional manager requested a call last week. Waiting on scheduling confirmation.
+Brookfield Manor,"Louisville, KY",88,20,15,
+Pinehurst Gardens,"Birmingham, AL",166,24,12,
+Riverbend Terrace,"Little Rock, AR",130,16,3,
+Sycamore Place,"Wichita, KS",92,4,10,
+Birchwood Place,"Tampa, FL",220,62,9,Support ticket open for API integration failure. CRM sync broke after their Yardi update.
+Ridgeline at Montrose,"Houston, TX",382,78,14,Team uses the platform daily but conversion stalled at 14% for three months. Likely a configuration issue.
+Avalon Park Tower,"Chicago, IL",298,45,7,
+Centennial Station,"Charlotte, NC",256,88,12,High adoption but abysmal conversion. Audited last month: response templates were outdated and referencing old pricing.
+Westfield Square,"Columbus, OH",174,52,16,
+The Harrison,"Washington, DC",190,71,11,New marketing source added (Apartments.com) but lead routing is not configured for it.
+Greystone Heights,"Minneapolis, MN",148,38,5,
+Prescott Village,"San Antonio, TX",332,64,18,
+Sterling Pointe,"Nashville, TN",210,41,8,
+Bellaire Residences,"Dallas, TX",276,55,13,Training session scheduled for next Tuesday. Team is receptive but needs hands-on walkthrough.
+Parkview Commons,"Raleigh, NC",240,15,28,Training session completed April 8. Adoption up 12 points but still below target.
+Crescent Bay,"San Diego, CA",168,22,35,
+Amber Grove Apartments,"Portland, OR",134,8,42,Product converts at 42% with almost no team engagement. If adoption doubles this account triples in value.
+Maplewood Terrace,"Richmond, VA",186,28,24,
+Lakeshore Villas,"Orlando, FL",302,10,31,
+Thornton Place,"Kansas City, MO",118,19,22,
+Edgewater Landing,"Milwaukee, WI",144,26,38,Regional VP mentioned this property as a success story in their internal newsletter.
+Foxglove Residences,"Boise, ID",102,7,26,
+Cedarbrook Station,"Philadelphia, PA",248,14,44,
+Lakewood Crossing,"Austin, TX",312,88,34,Renewed for 2 years in March. Strong candidate for case study. Regional VP mentioned interest in ResidentAI during last QBR.
+Highline at Midtown,"Atlanta, GA",266,72,28,
+The Ellington,"Boston, MA",184,91,42,Top performer across the entire portfolio. Already referred two operators in Q1.
+Solana Ridge,"Scottsdale, AZ",152,65,38,
+Watermark Tower,"Seattle, WA",228,84,31,
+Beacon Hill Apartments,"Denver, CO",196,58,22,
+Summit View,"Portland, OR",138,76,44,
+Orchard Park Residences,"Raleigh, NC",284,48,26,
+The Belmonte,"Miami, FL",346,93,48,Highest conversion rate in the portfolio. Leasing team runs weekly optimization reviews on their own.
+Whitaker Place,"Nashville, TN",162,42,29,
+Greenbriar Court,"Charlotte, NC",208,67,35,Expansion conversation started. Interested in adding three more buildings by Q4.
+Bridgeport Landings,"Cleveland, OH",126,36,24,
+Silverlake Apartments,"Los Angeles, CA",372,82,39,
+Hawthorne Flats,"Pittsburgh, PA",114,54,27,
+Kensington Row,"Baltimore, MD",192,70,33,
+The Waverly,"San Francisco, CA",158,95,46,Second highest performer. Uses every feature including the resident screening add-on.
+Monarch at Midtown,"Dallas, TX",318,61,30,
+Riverwalk Commons,"San Antonio, TX",234,38,21,Just crossed into reference territory last month after a training push. Fragile. Monitor closely.
