@@ -8,28 +8,28 @@ interface Props {
 export function PortfolioSummary({ stats }: Props) {
   const cards = [
     {
-      label: 'Accounts in portfolio',
+      label: 'Accounts loaded',
       value: String(stats.total),
       tone: 'default' as const,
-      tip: 'The total number of deployed client accounts in the loaded dataset.',
+      tip: 'Total client accounts in the current dataset. Replace the data any time using "Upload CSV" in the header.',
     },
     {
-      label: 'Churn risk',
+      label: 'Needs a save call',
       value: String(stats.byCategory.churn),
       tone: 'churn' as const,
-      tip: 'Low adoption and low conversion. These accounts need a save call this week or you lose them at renewal.',
+      tip: 'Accounts in the "churn risk" group: low usage AND low conversion. Call these before they decide not to renew.',
     },
     {
-      label: 'Avg adoption',
+      label: 'Avg usage',
       value: `${stats.avgUA}%`,
       tone: 'default' as const,
-      tip: 'Mean user adoption across all accounts. Cross this with the threshold slider to see how aggressive your bar is.',
+      tip: 'Average user adoption across the portfolio. Move the usage slider on the left to change what counts as "high enough".',
     },
     {
-      label: 'Avg conversion',
+      label: 'Avg leads closed',
       value: `${stats.avgCR}%`,
       tone: 'default' as const,
-      tip: 'Mean AI-handled lead conversion across all accounts.',
+      tip: 'Average percent of AI-handled leads that turned into tours or signed leases.',
     },
   ];
 

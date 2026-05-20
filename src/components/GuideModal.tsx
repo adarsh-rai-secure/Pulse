@@ -1,6 +1,7 @@
 import { Modal } from './Modal';
 import { CATEGORIES, CATEGORY_ORDER } from '../data/categories';
 import { TEAM } from '../data/team';
+import { SEARCH_HINTS } from '../lib/search';
 
 interface Props {
   open: boolean;
@@ -9,20 +10,21 @@ interface Props {
 
 export function GuideModal({ open, onClose }: Props) {
   return (
-    <Modal open={open} onClose={onClose} title="Reference guide" width="max-w-3xl">
+    <Modal open={open} onClose={onClose} title="Guide" width="max-w-3xl">
       <div className="space-y-5 text-13 leading-relaxed">
         <section>
-          <h3 className="font-semibold text-ink-900 mb-1">How classification works</h3>
+          <h3 className="font-semibold text-ink-900 mb-1">In plain English</h3>
           <p className="text-ink-700">
-            Each account is placed in one of four quadrants by comparing its
-            user adoption (UA) and conversion rate (CR) against the threshold
-            sliders. Move the sliders and watch the scatter plot regroup in
-            real time. Defaults are UA 30% and CR 20%.
+            Pulse takes your client portfolio and sorts every account by two
+            numbers: how often the team uses your AI tool ("usage") and how many
+            AI-handled leads turned into leases ("close rate"). It groups
+            accounts by health, tells you what to do for each, and writes a
+            first-draft email when you click an account.
           </p>
         </section>
 
         <section>
-          <h3 className="font-semibold text-ink-900 mb-2">Quadrants</h3>
+          <h3 className="font-semibold text-ink-900 mb-2">The four health groups</h3>
           <div className="grid sm:grid-cols-2 gap-2">
             {CATEGORY_ORDER.map((k) => {
               const c = CATEGORIES[k];
@@ -39,7 +41,8 @@ export function GuideModal({ open, onClose }: Props) {
                       {c.label}
                     </span>
                     <span className="text-2xs text-ink-500">
-                      default owner: {TEAM.find((t) => t.id === c.defaultOwner)?.name}
+                      default owner:{' '}
+                      {TEAM.find((t) => t.id === c.defaultOwner)?.name}
                     </span>
                   </div>
                   <p className="text-ink-700 mb-2">{c.description}</p>
@@ -55,7 +58,30 @@ export function GuideModal({ open, onClose }: Props) {
         </section>
 
         <section>
-          <h3 className="font-semibold text-ink-900 mb-2">Team</h3>
+          <h3 className="font-semibold text-ink-900 mb-2">How search works</h3>
+          <p className="text-ink-700 mb-2">
+            Type into the search box on the "All accounts" section. You can
+            combine any of these:
+          </p>
+          <ul className="space-y-1">
+            {SEARCH_HINTS.map((h) => (
+              <li key={h.token} className="flex items-baseline gap-2">
+                <code className="text-2xs bg-surface-100 px-1.5 py-0.5 rounded font-mono">
+                  {h.token}
+                </code>
+                <span className="text-ink-700">{h.meaning}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-2xs text-ink-500 mt-2">
+            Anything that's not a special token searches across account name,
+            city (with full state names too — "Texas" matches "TX"), notes, and
+            owner name.
+          </p>
+        </section>
+
+        <section>
+          <h3 className="font-semibold text-ink-900 mb-2">Team roles</h3>
           <div className="grid sm:grid-cols-2 gap-2">
             {TEAM.map((m) => (
               <div
@@ -70,27 +96,29 @@ export function GuideModal({ open, onClose }: Props) {
         </section>
 
         <section>
-          <h3 className="font-semibold text-ink-900 mb-1">
-            Under the hood
-          </h3>
+          <h3 className="font-semibold text-ink-900 mb-1">Under the hood</h3>
           <ul className="list-disc pl-5 text-ink-700 space-y-1">
             <li>
-              <strong>RAG context store</strong>: each account's profile and
-              your notes are chunked and stored in browser localStorage, then
-              retrieved at draft time.
+              <strong>Account memory (RAG context store):</strong> each
+              account's profile and your notes are chunked and stored in browser
+              localStorage. We pull them back as "retrieved context" right
+              before the model writes.
             </li>
             <li>
-              <strong>Semantic search</strong>: TF-IDF cosine similarity over
-              the chunked corpus surfaces 3 related accounts for the model to
-              reason from.
+              <strong>Similar accounts (TF-IDF cosine):</strong> the corpus is
+              the chunked text from every account. We compute term-frequency
+              inverse-document-frequency weights, then rank by cosine similarity
+              and blend with metric distance. Runs entirely in the browser.
             </li>
             <li>
-              <strong>Streaming generation</strong>: drafts arrive via Server-Sent
-              Events from OpenRouter. The token caret blinks as content lands.
+              <strong>Streaming generation:</strong> drafts arrive as
+              Server-Sent Events from OpenRouter and render token-by-token with
+              a blinking caret.
             </li>
             <li>
-              <strong>Observability</strong>: the Dev panel shows the exact
-              system + user prompt, model, latency, and token counts.
+              <strong>Observability:</strong> the Dev button in the header opens
+              the full system + user prompt, model, latency, and token counts
+              for the latest draft.
             </li>
           </ul>
         </section>

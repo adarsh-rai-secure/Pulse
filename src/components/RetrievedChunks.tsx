@@ -11,12 +11,12 @@ export function RetrievedChunks({ chunks, similar }: Props) {
   return (
     <div className="panel-flat p-3">
       <div className="flex items-center gap-1.5 mb-2">
-        <span className="label-eyebrow">RAG context store</span>
-        <span className="chip bg-brand-50 text-brand-700">
+        <span className="label-eyebrow">Account memory</span>
+        <span className="chip bg-brand-50 text-brand-700" title="Retrieval-Augmented Generation context store">
           {chunks.length} chunk{chunks.length === 1 ? '' : 's'}
         </span>
         <InfoTip
-          text="These are the exact context passages we inject into the prompt before asking the model. Real retrieval: the account profile, your notes, and the top similar accounts ranked by TF-IDF cosine. Persisted in browser storage between sessions."
+          text="What we feed into the model before it writes. The account profile and your notes are pulled in as 'chunks' — this is the RAG context store under the hood. Persisted in browser storage so your notes survive a refresh."
           side="bottom"
         />
       </div>
@@ -34,9 +34,9 @@ export function RetrievedChunks({ chunks, similar }: Props) {
       </div>
 
       <div className="flex items-center gap-1.5 mb-1.5">
-        <span className="label-eyebrow">Similar accounts (TF-IDF)</span>
+        <span className="label-eyebrow">Similar accounts</span>
         <InfoTip
-          text="We tokenize every account's notes + profile, compute TF-IDF weights, and rank by cosine similarity. The top matches are added to the prompt as precedent so the model can reason from in-portfolio examples."
+          text="The three most similar accounts in your portfolio, based on how their notes and profiles line up with this one. Uses TF-IDF cosine similarity in the browser — no external service. Gives the model precedent to reason from."
           side="bottom"
         />
       </div>
@@ -62,7 +62,10 @@ export function RetrievedChunks({ chunks, similar }: Props) {
                   </span>
                   <span className="truncate text-ink-700">{s.propertyName}</span>
                 </div>
-                <span className="font-mono text-ink-500 tabular-nums">
+                <span
+                  className="font-mono text-ink-500 tabular-nums"
+                  title="Cosine similarity score (higher = more similar)"
+                >
                   {s.score.toFixed(3)}
                 </span>
               </div>

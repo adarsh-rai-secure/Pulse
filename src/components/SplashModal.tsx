@@ -5,27 +5,33 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onUploadInstead: () => void;
+  onPreviewSample: () => void;
 }
 
 const PANELS = [
   {
     label: 'The problem',
-    title: 'You ship one AI product to fifty different clients.',
-    body: 'Adoption looks wildly different at every one. Property A converts 38% of leads. Property B, running the same software, converts 4%. Customer success owns the call: who needs help, what kind, what to say.',
+    title: 'One AI product, fifty different clients.',
+    body: 'Adoption looks wildly different at every client. One uses it daily and closes 38% of leads. The next runs the same software and closes 4%. The customer success team has to figure out who needs help, what kind, and what to say — every single morning.',
   },
   {
-    label: 'What Pulse does',
-    title: 'Two metrics, four quadrants, one prioritized queue.',
-    body: 'Upload your portfolio CSV. Pulse classifies each account by user adoption and AI conversion rate into churn risk, stuck, sleeping champion, or reference. Each quadrant has its own playbook and its own AI-drafted outreach.',
+    label: 'How Pulse helps',
+    title: 'Sort accounts into four health groups. Act on the right ones first.',
+    body: 'Upload your portfolio. Pulse classifies each client by how often the team uses the tool and how many leads they close. You get one of four labels per account: churn risk, stuck, sleeping champion, or reference. Each label comes with a playbook and an AI-drafted email.',
   },
   {
-    label: 'Pick your demo',
-    title: 'Two ways to try it.',
-    body: 'Either explore with the bundled 52-account portfolio, or drop in your own CSV. You can swap data at any time from the header.',
+    label: 'Try it now',
+    title: 'Two ways to start.',
+    body: "Use the bundled 52-client sample portfolio to explore, or upload your own CSV. Want to look at the sample first? You can preview it before loading it. Swap data any time from the header.",
   },
 ];
 
-export function SplashModal({ open, onClose, onUploadInstead }: Props) {
+export function SplashModal({
+  open,
+  onClose,
+  onUploadInstead,
+  onPreviewSample,
+}: Props) {
   const [step, setStep] = useState(0);
   const isLast = step === PANELS.length - 1;
 
@@ -60,7 +66,7 @@ export function SplashModal({ open, onClose, onUploadInstead }: Props) {
           </div>
         </div>
 
-        <div className="space-y-2 min-h-[180px]">
+        <div className="space-y-2 min-h-[200px]">
           <div className="label-eyebrow text-brand-700">{PANELS[step].label}</div>
           <h2 className="text-[20px] font-semibold tracking-tight leading-snug">
             {PANELS[step].title}
@@ -71,12 +77,21 @@ export function SplashModal({ open, onClose, onUploadInstead }: Props) {
         </div>
 
         {isLast && (
-          <div className="grid grid-cols-2 gap-2 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
             <button
               className="btn-primary justify-center py-2.5"
               onClick={onClose}
             >
               Use sample data
+            </button>
+            <button
+              className="btn-outline justify-center py-2.5"
+              onClick={() => {
+                onClose();
+                onPreviewSample();
+              }}
+            >
+              Preview sample
             </button>
             <button
               className="btn-outline justify-center py-2.5"

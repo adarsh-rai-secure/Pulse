@@ -12,9 +12,9 @@ export function ThresholdControls({ thresholds, onChange }: Props) {
       <div>
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1.5">
-            <span className="label-eyebrow">User adoption threshold</span>
+            <span className="label-eyebrow">"High usage" starts at</span>
             <InfoTip
-              text="Pulse calls an account 'high adoption' if user adoption is at or above this value. Drag to see what happens when you raise the bar."
+              text="Pulse marks an account as 'high usage' (user adoption) if the team uses the platform this often or more. Drag the slider to raise or lower the bar and watch the dots regroup."
               side="right"
             />
           </div>
@@ -40,9 +40,9 @@ export function ThresholdControls({ thresholds, onChange }: Props) {
       <div>
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1.5">
-            <span className="label-eyebrow">Conversion rate threshold</span>
+            <span className="label-eyebrow">"Strong close rate" starts at</span>
             <InfoTip
-              text="Above this conversion rate, an account counts as 'high conversion'. Together with the adoption threshold, this defines all four quadrants."
+              text="Above this conversion rate, an account counts as 'closing leads well'. The two sliders together define all four health groups."
               side="right"
             />
           </div>
@@ -66,8 +66,9 @@ export function ThresholdControls({ thresholds, onChange }: Props) {
       </div>
 
       <div className="text-2xs text-ink-500 leading-snug">
-        Defaults are <span className="font-medium text-ink-700">UA 30 / CR 20</span>.
-        Adjust to match your own definitions of 'using it' and 'converting'.
+        Defaults are{' '}
+        <span className="font-medium text-ink-700">usage 30% / close 20%</span>.
+        Adjust to match your own bar for "using it" and "converting".
       </div>
     </div>
   );

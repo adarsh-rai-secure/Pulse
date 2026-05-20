@@ -5,14 +5,14 @@ export function ProblemBanner() {
 
   return (
     <div className="bg-brand-50 border-b border-brand-200">
-      <div className="max-w-[1200px] mx-auto px-6 py-2.5 flex items-start gap-3 text-13">
+      <div className="max-w-[1280px] mx-auto px-6 py-2.5 flex items-start gap-3 text-13">
         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-700 text-white flex items-center justify-center mt-px text-[11px] font-bold">
           ?
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium text-brand-900">
-              You sell an AI product to 50+ clients. Who is using it, who is not, and who needs a call this week?
+              Your AI product is live at fifty clients. Who needs a call this week, who needs a fix, who is doing great?
             </span>
             <button
               onClick={() => setExpanded((v) => !v)}
@@ -22,23 +22,22 @@ export function ProblemBanner() {
             </button>
           </div>
           {expanded && (
-            <div className="mt-2 text-ink-700 leading-relaxed max-w-[800px]">
+            <div className="mt-2 text-ink-700 leading-relaxed max-w-[820px]">
               <p className="mb-1.5">
-                AI leasing tools get deployed across hundreds of multifamily
-                properties, and adoption looks wildly different at every account.
-                One property converts 38% of leads. The next one, running the same
-                software, converts 4%.
+                Your AI tool is deployed across dozens of client accounts. Some
+                clients use it every day and close 38% of their leads. Other
+                clients run the same software and close 4%. Same product, very
+                different outcomes.
               </p>
               <p className="mb-1.5">
-                A single customer success manager owns 40 to 60 of these accounts.
-                Their morning is three tabs, one spreadsheet, and an hour of
-                triage. By the time they figure out what to send to whom, the day
-                is half gone.
+                One customer success manager usually owns 40 to 60 of those
+                accounts. Their morning is three browser tabs and a spreadsheet,
+                and by the time they figure out who to call first, an hour is
+                gone.
               </p>
               <p>
-                Pulse replaces that hour. Upload portfolio metrics, classify each
-                account into a health quadrant, and let the model draft the
-                outreach. The CSM clicks, reads, edits, sends.
+                Pulse replaces that hour. Load the portfolio, see who is in
+                trouble, click the account, read the AI draft, edit it, send it.
               </p>
             </div>
           )}
