@@ -26,6 +26,8 @@ interface Props {
   onStatusChange: (status: CaseStatus) => void;
   onNotesChange: (notes: string) => void;
   onDraftChange: (record: DraftRecord) => void;
+  onMailtoOpened?: () => void;
+  onDraftPinned?: () => void;
   draftRecord: DraftRecord | undefined;
 }
 
@@ -46,6 +48,8 @@ export function ActionPanel({
   onStatusChange,
   onNotesChange,
   onDraftChange,
+  onMailtoOpened,
+  onDraftPinned,
   draftRecord,
 }: Props) {
   const category = classify(
@@ -125,11 +129,13 @@ export function ActionPanel({
     const subj = draftRecord?.subject ?? 'Outreach draft';
     const body = draftRecord?.body ?? '';
     window.location.href = `mailto:?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+    onMailtoOpened?.();
   }
 
   function onPin() {
     if (!draftRecord) return;
     ragStore.pinGolden(property.id, draftRecord);
+    onDraftPinned?.();
   }
 
   const usedFallback = (draftRecord?.model ?? '') === 'fallback/template';

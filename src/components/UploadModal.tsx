@@ -1,6 +1,10 @@
 import { useRef, useState } from 'react';
 import { Modal } from './Modal';
-import { parseFileToProperties, propertiesToCsv } from '../lib/parseCsv';
+import {
+  parseCsvToProperties,
+  parseFileToProperties,
+  propertiesToCsv,
+} from '../lib/parseCsv';
 import type { Property } from '../types';
 
 interface Props {
@@ -8,38 +12,66 @@ interface Props {
   onClose: () => void;
   onLoad: (props: Property[], filename: string) => void;
   currentSampleCsv: string;
+  initialView?: 'pick' | 'sample-preview';
 }
 
-export function UploadModal({ open, onClose, onLoad, currentSampleCsv }: Props) {
+type View =
+  | { kind: 'pick' }
+  | { kind: 'preview'; props: Property[]; filename: string; error?: string };
+
+export function UploadModal({
+  open,
+  onClose,
+  onLoad,
+  currentSampleCsv,
+  initialView = 'pick',
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<{
-    props: Property[];
-    filename: string;
-    error?: string;
-  } | null>(null);
+  const [view, setView] = useState<View>(() =>
+    initialView === 'sample-preview'
+      ? {
+          kind: 'preview',
+          props: parseCsvToProperties(currentSampleCsv),
+          filename: 'pulse-sample-portfolio.csv (bundled)',
+        }
+      : { kind: 'pick' }
+  );
   const [dragOver, setDragOver] = useState(false);
+
+  function reset() {
+    setView({ kind: 'pick' });
+  }
 
   async function handleFile(file: File) {
     try {
       const props = await parseFileToProperties(file);
       if (props.length === 0) {
-        setPreview({
+        setView({
+          kind: 'preview',
           props: [],
           filename: file.name,
           error:
-            'No rows were parsed. Make sure the file has a header row with Property Name, City, Units, User Adoption (%), Conversion Rate (%), Notes.',
+            'No rows parsed. Make sure the file has a header row with Property Name, City, Units, User Adoption (%), Conversion Rate (%), Notes.',
         });
         return;
       }
-      setPreview({ props, filename: file.name });
+      setView({ kind: 'preview', props, filename: file.name });
     } catch (e) {
-      setPreview({
+      setView({
+        kind: 'preview',
         props: [],
         filename: file.name,
-        error:
-          e instanceof Error ? e.message : 'Could not parse the file.',
+        error: e instanceof Error ? e.message : 'Could not parse the file.',
       });
     }
+  }
+
+  function previewSample() {
+    setView({
+      kind: 'preview',
+      props: parseCsvToProperties(currentSampleCsv),
+      filename: 'pulse-sample-portfolio.csv (bundled)',
+    });
   }
 
   function downloadSample() {
@@ -53,9 +85,9 @@ export function UploadModal({ open, onClose, onLoad, currentSampleCsv }: Props) 
   }
 
   function confirmLoad() {
-    if (!preview || preview.props.length === 0) return;
-    onLoad(preview.props, preview.filename);
-    setPreview(null);
+    if (view.kind !== 'preview' || view.props.length === 0) return;
+    onLoad(view.props, view.filename);
+    reset();
     onClose();
   }
 
@@ -63,13 +95,13 @@ export function UploadModal({ open, onClose, onLoad, currentSampleCsv }: Props) 
     <Modal
       open={open}
       onClose={() => {
-        setPreview(null);
+        reset();
         onClose();
       }}
-      title="Upload portfolio data"
+      title="Load portfolio data"
       width="max-w-3xl"
     >
-      {!preview && (
+      {view.kind === 'pick' && (
         <div className="space-y-4">
           <div
             onDragOver={(e) => {
@@ -91,13 +123,13 @@ export function UploadModal({ open, onClose, onLoad, currentSampleCsv }: Props) 
             }
           >
             <div className="text-13 text-ink-700 mb-2">
-              Drop a CSV or Excel file here, or
+              Drag a CSV or Excel file here, or
             </div>
             <button
               className="btn-primary"
               onClick={() => inputRef.current?.click()}
             >
-              Choose a file
+              Browse for a file
             </button>
             <input
               ref={inputRef}
@@ -110,46 +142,63 @@ export function UploadModal({ open, onClose, onLoad, currentSampleCsv }: Props) 
               }}
             />
             <div className="text-2xs text-ink-500 mt-3">
-              Expected columns: <code>Property Name, City, Units, User Adoption (%), Conversion Rate (%), Notes</code>.
-              Shorthand <code>UA</code> and <code>CR</code> also work.
+              Expected columns:{' '}
+              <code>
+                Property Name, City, Units, User Adoption (%), Conversion Rate (%), Notes
+              </code>
+              . Shorthand <code>UA</code> and <code>CR</code> also work.
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-13">
-            <span className="text-ink-500">
-              Need a starting point?
-            </span>
-            <button className="btn-outline" onClick={downloadSample}>
-              Download sample CSV
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              className="panel-flat p-4 text-left hover:border-brand-200 transition-colors"
+              onClick={previewSample}
+            >
+              <div className="text-13 font-medium text-ink-900">
+                Preview the bundled sample
+              </div>
+              <p className="text-2xs text-ink-500 mt-1">
+                Show the 52-account demo portfolio before loading it. You can
+                inspect every row first.
+              </p>
+            </button>
+            <button
+              className="panel-flat p-4 text-left hover:border-brand-200 transition-colors"
+              onClick={downloadSample}
+            >
+              <div className="text-13 font-medium text-ink-900">
+                Download the sample as a CSV
+              </div>
+              <p className="text-2xs text-ink-500 mt-1">
+                Useful as a starting template for your own portfolio data.
+              </p>
             </button>
           </div>
         </div>
       )}
 
-      {preview && (
+      {view.kind === 'preview' && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="text-13">
-              <span className="font-medium">{preview.filename}</span>
+              <span className="font-medium">{view.filename}</span>
               <span className="text-ink-500 ml-2">
-                {preview.props.length} row{preview.props.length === 1 ? '' : 's'} parsed
+                {view.props.length} row{view.props.length === 1 ? '' : 's'} parsed
               </span>
             </div>
-            <button
-              className="btn-ghost"
-              onClick={() => setPreview(null)}
-            >
-              Pick a different file
+            <button className="btn-ghost" onClick={reset}>
+              Pick a different source
             </button>
           </div>
 
-          {preview.error && (
+          {view.error && (
             <div className="bg-signal-churnBg text-signal-churnFg rounded-md p-3 text-13">
-              {preview.error}
+              {view.error}
             </div>
           )}
 
-          {preview.props.length > 0 && (
+          {view.props.length > 0 && (
             <>
               <div className="border border-surface-200 rounded-md max-h-[320px] overflow-auto">
                 <table className="w-full text-13">
@@ -164,13 +213,17 @@ export function UploadModal({ open, onClose, onLoad, currentSampleCsv }: Props) 
                     </tr>
                   </thead>
                   <tbody>
-                    {preview.props.slice(0, 80).map((p) => (
+                    {view.props.slice(0, 80).map((p) => (
                       <tr key={p.id} className="border-b border-surface-100">
                         <Td className="font-medium">{p.name}</Td>
                         <Td>{p.city}</Td>
                         <Td className="text-right tabular-nums">{p.units}</Td>
-                        <Td className="text-right tabular-nums">{p.userAdoption}%</Td>
-                        <Td className="text-right tabular-nums">{p.conversionRate}%</Td>
+                        <Td className="text-right tabular-nums">
+                          {p.userAdoption}%
+                        </Td>
+                        <Td className="text-right tabular-nums">
+                          {p.conversionRate}%
+                        </Td>
                         <Td className="text-ink-500 truncate max-w-[280px]">
                           {p.notes}
                         </Td>
@@ -179,17 +232,17 @@ export function UploadModal({ open, onClose, onLoad, currentSampleCsv }: Props) 
                   </tbody>
                 </table>
               </div>
-              {preview.props.length > 80 && (
+              {view.props.length > 80 && (
                 <div className="text-2xs text-ink-500">
-                  Showing first 80 of {preview.props.length} rows.
+                  Showing first 80 of {view.props.length} rows.
                 </div>
               )}
               <div className="flex justify-end gap-2">
-                <button className="btn-outline" onClick={() => setPreview(null)}>
+                <button className="btn-outline" onClick={reset}>
                   Cancel
                 </button>
                 <button className="btn-primary" onClick={confirmLoad}>
-                  Replace current dataset
+                  Load this data
                 </button>
               </div>
             </>
@@ -200,10 +253,30 @@ export function UploadModal({ open, onClose, onLoad, currentSampleCsv }: Props) 
   );
 }
 
-function Th({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <th className={'label-eyebrow font-medium py-2 px-2.5 text-left ' + (className ?? '')}>{children}</th>;
+function Th({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <th
+      className={
+        'label-eyebrow font-medium py-2 px-2.5 text-left ' + (className ?? '')
+      }
+    >
+      {children}
+    </th>
+  );
 }
-function Td({ children, className }: { children: React.ReactNode; className?: string }) {
+function Td({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return <td className={'py-1.5 px-2.5 ' + (className ?? '')}>{children}</td>;
 }
 
