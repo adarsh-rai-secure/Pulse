@@ -6,6 +6,7 @@ interface Props {
   onClose: () => void;
   onUploadInstead: () => void;
   onPreviewSample: () => void;
+  onStartTour: () => void;
 }
 
 const PANELS = [
@@ -31,6 +32,7 @@ export function SplashModal({
   onClose,
   onUploadInstead,
   onPreviewSample,
+  onStartTour,
 }: Props) {
   const [step, setStep] = useState(0);
   const isLast = step === PANELS.length - 1;
@@ -77,31 +79,54 @@ export function SplashModal({
         </div>
 
         {isLast && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+          <div className="space-y-2 pt-1">
             <button
-              className="btn-primary justify-center py-2.5"
-              onClick={onClose}
-            >
-              Use sample data
-            </button>
-            <button
-              className="btn-outline justify-center py-2.5"
+              className="btn-primary w-full justify-center py-3 text-[14px]"
               onClick={() => {
                 onClose();
-                onPreviewSample();
+                onStartTour();
               }}
             >
-              Preview sample
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none">
+                <path
+                  d="M12 2l2.4 5 5.6.8-4 4 1 5.6L12 14.8 7 17.4l1-5.6-4-4L9.6 7 12 2z"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Start the walkthrough (2 min, interactive)
             </button>
-            <button
-              className="btn-outline justify-center py-2.5"
-              onClick={() => {
-                onClose();
-                onUploadInstead();
-              }}
-            >
-              Upload my CSV
-            </button>
+            <div className="text-2xs text-ink-500 text-center">
+              First time here? Recommended. The walkthrough loads sample data
+              and shows you each feature one task at a time.
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-surface-200">
+              <button
+                className="btn-outline justify-center py-2"
+                onClick={onClose}
+              >
+                Skip, use sample data
+              </button>
+              <button
+                className="btn-outline justify-center py-2"
+                onClick={() => {
+                  onClose();
+                  onPreviewSample();
+                }}
+              >
+                Preview sample first
+              </button>
+              <button
+                className="btn-outline justify-center py-2"
+                onClick={() => {
+                  onClose();
+                  onUploadInstead();
+                }}
+              >
+                Upload my CSV
+              </button>
+            </div>
           </div>
         )}
 

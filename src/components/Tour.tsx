@@ -25,6 +25,7 @@ interface Props {
   open: boolean;
   state: TourState;
   onClose: () => void;
+  onStepChange?: (nextStep: number, prevStep: number) => void;
   initialStep?: number;
 }
 
@@ -37,6 +38,7 @@ interface Rect {
 
 const PADDING = 8;
 const AUTO_ADVANCE_DELAY_MS = 700;
+const MASK_FILL = 'rgba(11, 11, 20, 0.32)';
 
 function getRect(selector: string): Rect | null {
   if (selector === 'body') {
@@ -58,10 +60,22 @@ function getRect(selector: string): Rect | null {
   };
 }
 
-export function Tour({ steps, open, state, onClose, initialStep = 0 }: Props) {
+export function Tour({
+  steps,
+  open,
+  state,
+  onClose,
+  onStepChange,
+  initialStep = 0,
+}: Props) {
   const [stepIdx, setStepIdx] = useState(initialStep);
   const [rect, setRect] = useState<Rect | null>(null);
   const [completed, setCompleted] = useState(false);
+  const [drag, setDrag] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(
+    null
+  );
   const completedAtRef = useRef<number>(0);
   const step = steps[stepIdx];
 
@@ -69,6 +83,7 @@ export function Tour({ steps, open, state, onClose, initialStep = 0 }: Props) {
     if (open) {
       setStepIdx(initialStep);
       setCompleted(false);
+      setDrag({ x: 0, y: 0 });
     }
   }, [open, initialStep]);
 
@@ -91,9 +106,10 @@ export function Tour({ steps, open, state, onClose, initialStep = 0 }: Props) {
     return () => cancelAnimationFrame(raf);
   }, [open, stepIdx, step]);
 
-  // Reset completion flag whenever step changes
+  // Reset completion flag + drag offset whenever step changes
   useEffect(() => {
     setCompleted(false);
+    setDrag({ x: 0, y: 0 });
   }, [stepIdx]);
 
   // Watch for completion of interactive steps
@@ -104,7 +120,6 @@ export function Tour({ steps, open, state, onClose, initialStep = 0 }: Props) {
       setCompleted(true);
       completedAtRef.current = Date.now();
       const t = window.setTimeout(() => {
-        // Only auto-advance if still on the same step and still complete
         if (open) goNext();
       }, AUTO_ADVANCE_DELAY_MS);
       return () => window.clearTimeout(t);
@@ -129,17 +144,53 @@ export function Tour({ steps, open, state, onClose, initialStep = 0 }: Props) {
       onClose();
       return;
     }
-    setStepIdx((s) => s + 1);
+    const prev = stepIdx;
+    const next = stepIdx + 1;
+    setStepIdx(next);
+    onStepChange?.(next, prev);
   }
   function goPrev() {
     if (stepIdx === 0) return;
-    setStepIdx((s) => s - 1);
+    const prev = stepIdx;
+    const next = stepIdx - 1;
+    setStepIdx(next);
+    onStepChange?.(next, prev);
+  }
+
+  function onDragStart(e: React.PointerEvent) {
+    e.preventDefault();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      ox: drag.x,
+      oy: drag.y,
+    };
+    setIsDragging(true);
+  }
+  function onDragMove(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    setDrag({
+      x: dragRef.current.ox + (e.clientX - dragRef.current.x),
+      y: dragRef.current.oy + (e.clientY - dragRef.current.y),
+    });
+  }
+  function onDragEnd(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+    dragRef.current = null;
+    setIsDragging(false);
   }
 
   if (!open || !step) return null;
 
   const placement = step.placement ?? 'bottom';
-  const tooltipStyle = computeTooltipStyle(rect, placement);
+  const base = computeTooltipStyle(rect, placement);
+  const tooltipStyle: React.CSSProperties = applyDrag(base, drag);
   const isInteractive = !!step.isComplete;
 
   return (
@@ -165,7 +216,7 @@ export function Tour({ steps, open, state, onClose, initialStep = 0 }: Props) {
           <rect
             width="100%"
             height="100%"
-            fill="rgba(11, 11, 20, 0.55)"
+            fill={MASK_FILL}
             mask="url(#pulse-tour-mask)"
           />
           <rect
@@ -183,22 +234,38 @@ export function Tour({ steps, open, state, onClose, initialStep = 0 }: Props) {
 
       {step.target === 'body' && (
         <div
-          className="absolute inset-0 bg-ink-900/55 pointer-events-auto"
+          className="absolute inset-0 pointer-events-auto"
+          style={{ background: MASK_FILL }}
           onClick={goNext}
         />
       )}
 
       <div
-        className="absolute pointer-events-auto bg-surface-0 border border-surface-200 rounded-xl shadow-panel p-4 w-[360px] max-w-[calc(100vw-32px)]"
+        className={
+          'absolute pointer-events-auto bg-surface-0 border border-surface-200 rounded-xl shadow-panel p-4 w-[360px] max-w-[calc(100vw-32px)] select-none ' +
+          (isDragging ? 'cursor-grabbing' : '')
+        }
         style={tooltipStyle}
       >
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="label-eyebrow text-brand-700">
-            Step {stepIdx + 1} of {steps.length}
-          </span>
+        <div
+          className="flex items-center justify-between mb-1.5"
+          style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          onPointerDown={onDragStart}
+          onPointerMove={onDragMove}
+          onPointerUp={onDragEnd}
+          onPointerCancel={onDragEnd}
+          title="Drag to move this tooltip out of the way"
+        >
+          <div className="flex items-center gap-1.5">
+            <DragHandle />
+            <span className="label-eyebrow text-brand-700">
+              Step {stepIdx + 1} of {steps.length}
+            </span>
+          </div>
           <button
             className="text-2xs text-ink-500 hover:text-ink-900 underline"
             onClick={onClose}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             Skip tour
           </button>
@@ -268,6 +335,25 @@ export function Tour({ steps, open, state, onClose, initialStep = 0 }: Props) {
   );
 }
 
+function DragHandle() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className="w-3.5 h-3.5 text-ink-400"
+      aria-hidden
+    >
+      <g fill="currentColor">
+        <circle cx="5" cy="3.5" r="1.2" />
+        <circle cx="11" cy="3.5" r="1.2" />
+        <circle cx="5" cy="8" r="1.2" />
+        <circle cx="11" cy="8" r="1.2" />
+        <circle cx="5" cy="12.5" r="1.2" />
+        <circle cx="11" cy="12.5" r="1.2" />
+      </g>
+    </svg>
+  );
+}
+
 function computeTooltipStyle(
   rect: Rect | null,
   placement: 'top' | 'bottom' | 'left' | 'right' | 'center'
@@ -307,4 +393,21 @@ function computeTooltipStyle(
   }
 
   return { top, left };
+}
+
+function applyDrag(
+  base: React.CSSProperties,
+  drag: { x: number; y: number }
+): React.CSSProperties {
+  if (drag.x === 0 && drag.y === 0) return base;
+  // Centered placement uses transform: translate(-50%, -50%); add the drag delta to it
+  if (base.transform) {
+    return {
+      ...base,
+      transform: `${base.transform} translate(${drag.x}px, ${drag.y}px)`,
+    };
+  }
+  const top = typeof base.top === 'number' ? base.top + drag.y : base.top;
+  const left = typeof base.left === 'number' ? base.left + drag.x : base.left;
+  return { ...base, top, left };
 }

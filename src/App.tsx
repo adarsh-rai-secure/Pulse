@@ -737,6 +737,10 @@ export default function App() {
         onClose={() => setSplashOpen(false)}
         onUploadInstead={() => openUpload('pick')}
         onPreviewSample={() => openUpload('sample-preview')}
+        onStartTour={() => {
+          // Give the splash a tick to dismount before opening the tour overlay
+          setTimeout(() => setTourOpen(true), 250);
+        }}
       />
       <UploadModal
         open={uploadOpen}
@@ -776,9 +780,18 @@ export default function App() {
             : false,
           teamSectionOpen,
         }}
+        onStepChange={(_next, prev) => {
+          // Leaving the data-source preview step? Auto-close the preview modal
+          // so the next step's target (the threshold sliders) isn't covered.
+          if (prev === 1 && dataPreviewOpen) {
+            setDataPreviewOpen(false);
+          }
+        }}
         onClose={() => {
           setTourOpen(false);
           if (!tourSeen) setTourSeen(true);
+          // Closing the tour mid-flight shouldn't leave modals open behind it
+          if (dataPreviewOpen) setDataPreviewOpen(false);
         }}
       />
       <DevPanel
