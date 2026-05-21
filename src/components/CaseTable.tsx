@@ -11,7 +11,6 @@ interface Props {
   selectedId: string | null;
   onSelect: (id: string) => void;
   cases: Record<string, { ownerId: string; status: CaseStatus }>;
-  onOwnerChange: (propertyId: string, ownerId: string) => void;
   onStatusChange: (propertyId: string, status: CaseStatus) => void;
   pageSize?: number;
 }
@@ -29,7 +28,6 @@ export function CaseTable({
   selectedId,
   onSelect,
   cases,
-  onOwnerChange,
   onStatusChange,
   pageSize = 10,
 }: Props) {
@@ -85,7 +83,13 @@ export function CaseTable({
               <Th>Health</Th>
               <Th>What to do</Th>
               <Th>Owner</Th>
-              <Th>Status</Th>
+              <Th>
+                Status
+                <InfoTip
+                  text="Working state for this case. Change ownership in the action panel by clicking a row."
+                  side="left"
+                />
+              </Th>
             </tr>
           </thead>
           <tbody>
@@ -132,18 +136,8 @@ export function CaseTable({
                     </span>
                   </Td>
                   <Td className="text-ink-700">{c.action}</Td>
-                  <Td onClick={(e) => e.stopPropagation()}>
-                    <select
-                      className="input py-1 text-13"
-                      value={cs.ownerId}
-                      onChange={(e) => onOwnerChange(p.id, e.target.value)}
-                    >
-                      {TEAM.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name}
-                        </option>
-                      ))}
-                    </select>
+                  <Td className="text-ink-700">
+                    {TEAM.find((m) => m.id === cs.ownerId)?.name ?? 'Unassigned'}
                   </Td>
                   <Td onClick={(e) => e.stopPropagation()}>
                     <select

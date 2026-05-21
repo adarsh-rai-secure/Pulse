@@ -7,7 +7,6 @@ import { ScatterPlot } from './components/ScatterPlot';
 import { FilterBar } from './components/FilterBar';
 import { CaseTable } from './components/CaseTable';
 import { ActionPanel } from './components/ActionPanel';
-import { TopPriorities } from './components/TopPriorities';
 import { OutreachSection } from './components/OutreachSection';
 import { TeamSection } from './components/TeamSection';
 import { SectionNav } from './components/SectionNav';
@@ -15,6 +14,7 @@ import { Section } from './components/Section';
 import { SplashModal } from './components/SplashModal';
 import { GuideModal } from './components/GuideModal';
 import { UploadModal } from './components/UploadModal';
+import { DataPreviewModal } from './components/DataPreviewModal';
 import { DevPanel } from './components/DevPanel';
 import { Modal } from './components/Modal';
 import { loadSampleProperties, SAMPLE_CSV_TEXT } from './data/sampleData';
@@ -46,9 +46,9 @@ function defaultCase(catKey: CategoryKey): CaseEntry {
 }
 
 const SECTION_IDS = {
-  overview: 'overview',
-  accounts: 'all-accounts',
+  dashboard: 'dashboard',
   outreach: 'outreach',
+  accounts: 'all-accounts',
   team: 'team',
 } as const;
 
@@ -57,7 +57,7 @@ export default function App() {
     loadSampleProperties()
   );
   const [dataSourceLabel, setDataSourceLabel] = useState(
-    'sample portfolio (52 accounts)'
+    'sample portfolio'
   );
   const [thresholds, setThresholds] = useLocalStorage<Thresholds>(
     'pulse.thresholds',
@@ -98,9 +98,10 @@ export default function App() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [devOpen, setDevOpen] = useState(false);
   const [whyOpen, setWhyOpen] = useState(false);
+  const [dataPreviewOpen, setDataPreviewOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [activityNonce, setActivityNonce] = useState(0);
-  const actionPanelRef = useRef<HTMLDivElement>(null);
+  const outreachRef = useRef<HTMLDivElement>(null);
 
   function bumpActivity() {
     setActivityNonce((n) => n + 1);
@@ -165,63 +166,68 @@ export default function App() {
   function handleSelect(id: string) {
     setSelectedId(id);
     setTimeout(() => {
-      actionPanelRef.current?.scrollIntoView({
+      outreachRef.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       });
     }, 40);
   }
 
-  function updateCase(propertyId: string, patch: Partial<CaseEntry>) {
-    setCases((prev) => {
-      const p = properties.find((x) => x.id === propertyId);
-      if (!p) return prev;
-      const cat = classify(p.userAdoption, p.conversionRate, thresholds);
-      const base = prev[propertyId] ?? {
-        ...defaultCase(cat),
-        notes: p.notes ?? '',
-      };
-      const next = { ...base, ...patch };
-      const all = { ...prev, [propertyId]: next };
-      ragStore.saveCase(propertyId, next);
+  function jumpToSection(id: string) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
 
-      if (patch.ownerId && patch.ownerId !== base.ownerId) {
-        activity.log({
-          type: 'owner_changed',
-          propertyId,
-          ownerId: patch.ownerId,
-          summary: `Reassigned to ${getMember(patch.ownerId).name}`,
-        });
-        bumpActivity();
-      }
-      if (patch.status && patch.status !== base.status) {
-        activity.log({
-          type: 'status_changed',
-          propertyId,
-          ownerId: next.ownerId,
-          summary: `Status → ${patch.status.replace('_', ' ')}`,
-        });
-        bumpActivity();
-      }
-      if (typeof patch.notes === 'string' && patch.notes !== base.notes) {
-        // Debounce: only log if notes actually grew or changed meaningfully
-        if (Math.abs(patch.notes.length - base.notes.length) > 3) {
-          activity.log({
-            type: 'notes_edited',
-            propertyId,
-            ownerId: next.ownerId,
-            summary: `Notes updated (${patch.notes.length} chars)`,
-          });
-          bumpActivity();
-        }
-      }
-      return all;
-    });
+  // Pure-ish updater: compute next case + log activities + persist outside the setState callback
+  function updateCase(propertyId: string, patch: Partial<CaseEntry>) {
+    const p = properties.find((x) => x.id === propertyId);
+    if (!p) return;
+    const cat = classify(p.userAdoption, p.conversionRate, thresholds);
+    const prev = cases[propertyId] ?? {
+      ...defaultCase(cat),
+      notes: p.notes ?? '',
+    };
+    const next: CaseEntry = { ...prev, ...patch };
+
+    if (patch.ownerId && patch.ownerId !== prev.ownerId) {
+      activity.log({
+        type: 'owner_changed',
+        propertyId,
+        ownerId: patch.ownerId,
+        summary: `Reassigned from ${getMember(prev.ownerId).name} to ${getMember(patch.ownerId).name}`,
+      });
+    }
+    if (patch.status && patch.status !== prev.status) {
+      activity.log({
+        type: 'status_changed',
+        propertyId,
+        ownerId: next.ownerId,
+        summary: `Status → ${patch.status.replace('_', ' ')}`,
+      });
+    }
+    if (
+      typeof patch.notes === 'string' &&
+      patch.notes !== prev.notes &&
+      Math.abs(patch.notes.length - prev.notes.length) > 3
+    ) {
+      activity.log({
+        type: 'notes_edited',
+        propertyId,
+        ownerId: next.ownerId,
+        summary: `Notes updated (${patch.notes.length} chars)`,
+      });
+    }
+
+    ragStore.saveCase(propertyId, next);
+    setCases((prevState) => ({ ...prevState, [propertyId]: next }));
+    bumpActivity();
   }
 
   function onLoadProperties(props: Property[], filename: string) {
     setProperties(props);
-    setDataSourceLabel(`${filename} (${props.length} accounts)`);
+    setDataSourceLabel(filename);
     setCases({});
     setDrafts({});
     setSelectedId(null);
@@ -256,8 +262,7 @@ export default function App() {
   }
 
   function onMailtoOpened(propertyId: string) {
-    const ownerId =
-      cases[propertyId]?.ownerId ?? 'csm';
+    const ownerId = cases[propertyId]?.ownerId ?? 'csm';
     activity.log({
       type: 'mailto_opened',
       propertyId,
@@ -294,36 +299,33 @@ export default function App() {
     setUploadOpen(true);
   }
 
-  function jumpToSection(id: string) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 80;
-    window.scrollTo({ top, behavior: 'smooth' });
-  }
-
   useEffect(() => {
     if (!splashOpen && !splashSeen) setSplashSeen(true);
   }, [splashOpen, splashSeen, setSplashSeen]);
 
   const lastDraft = selectedId ? drafts[selectedId] : undefined;
   const pinnedCount = Object.keys(ragStore.loadGolden()).length;
+  const activeOutreachCount = useMemo(
+    () => activity.all().filter((e) => e.propertyId).length,
+    [activityNonce]
+  );
 
   const navItems = [
     {
-      id: SECTION_IDS.overview,
-      label: "Today's priorities",
+      id: SECTION_IDS.dashboard,
+      label: 'Dashboard',
       count: stats.byCategory.churn,
       tone: 'churn' as const,
+    },
+    {
+      id: SECTION_IDS.outreach,
+      label: 'Outreach',
+      count: activeOutreachCount,
     },
     {
       id: SECTION_IDS.accounts,
       label: 'All accounts',
       count: filteredProperties.length,
-    },
-    {
-      id: SECTION_IDS.outreach,
-      label: 'Outreach log',
-      count: activity.all().filter((e) => e.propertyId).length,
     },
     {
       id: SECTION_IDS.team,
@@ -344,9 +346,30 @@ export default function App() {
 
       <main className="flex-1 max-w-[1280px] w-full mx-auto px-6 py-5">
         <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
-          <div className="text-2xs text-ink-500">
-            Data source:{' '}
-            <span className="font-mono text-ink-700">{dataSourceLabel}</span>
+          <div className="text-2xs text-ink-500 flex items-center gap-2 flex-wrap">
+            <span>Data source:</span>
+            <button
+              className="font-mono text-ink-700 hover:text-brand-700 underline underline-offset-2 decoration-dotted"
+              onClick={() => setDataPreviewOpen(true)}
+              title="Preview the dataset currently loaded"
+            >
+              {dataSourceLabel}
+            </button>
+            <span className="text-ink-400">·</span>
+            <span>{properties.length} accounts</span>
+            <button
+              className="text-brand-700 hover:text-brand-900 underline underline-offset-2 ml-1"
+              onClick={() => setDataPreviewOpen(true)}
+            >
+              view
+            </button>
+            <span className="text-ink-400">·</span>
+            <button
+              className="text-brand-700 hover:text-brand-900 underline underline-offset-2"
+              onClick={() => openUpload('pick')}
+            >
+              replace
+            </button>
           </div>
           <button className="btn-ghost" onClick={exportFiltered}>
             Export filtered CSV
@@ -358,10 +381,10 @@ export default function App() {
 
           <div className="space-y-10 min-w-0">
             <Section
-              id={SECTION_IDS.overview}
-              title="Today's priorities"
-              subtitle="The accounts most likely to need a call today, drawn from the bottom of the health map."
-              tip="Pulse sorts every account by health group, then by combined usage + close rate. The 6 most urgent ones surface here. Use the scatter to see the full picture."
+              id={SECTION_IDS.dashboard}
+              title="Dashboard"
+              subtitle="Where every account sits on the health map. Slide the cutoffs to redraw the four groups."
+              tip="The scatter plot shows every account. The two sliders on the left define what counts as 'high enough' on each axis. Stat cards summarize the whole portfolio."
             >
               <PortfolioSummary stats={stats} />
               <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 mt-3">
@@ -376,17 +399,15 @@ export default function App() {
                   onSelect={handleSelect}
                 />
               </div>
-              <div className="mt-4">
-                <TopPriorities
-                  properties={properties}
-                  thresholds={thresholds}
-                  selectedId={selectedId}
-                  onSelect={handleSelect}
-                  onJumpToAll={() => jumpToSection(SECTION_IDS.accounts)}
-                />
-              </div>
+            </Section>
 
-              <div ref={actionPanelRef} className="mt-4">
+            <div ref={outreachRef}>
+              <Section
+                id={SECTION_IDS.outreach}
+                title="Outreach"
+                subtitle="Pick an account, read the AI-drafted email, edit and send. Every action is logged below."
+                tip="The action panel shows the selected account's playbook, who owns it, and a streaming AI draft. Below is the running log of every draft generated, every email opened, every reassignment."
+              >
                 {selectedProperty ? (
                   (() => {
                     const cs = getCaseFor(selectedProperty);
@@ -397,6 +418,7 @@ export default function App() {
                         thresholds={thresholds}
                         caseState={cs}
                         modelId={modelId}
+                        activityNonce={activityNonce}
                         onOwnerChange={(ownerId) =>
                           updateCase(selectedProperty.id, { ownerId })
                         }
@@ -419,18 +441,30 @@ export default function App() {
                   })()
                 ) : (
                   <div className="panel p-6 text-center text-13 text-ink-500">
-                    Click any account above (or any dot on the chart) to open
-                    the action panel.
+                    Click any dot on the dashboard chart, or any row in "All
+                    accounts" below, to open the action panel here.
                   </div>
                 )}
-              </div>
-            </Section>
+
+                <div className="mt-6">
+                  <div className="label-eyebrow mb-2">Activity log</div>
+                  <OutreachSection
+                    properties={properties}
+                    drafts={drafts}
+                    onSelect={(id) => {
+                      handleSelect(id);
+                    }}
+                    nonce={activityNonce}
+                  />
+                </div>
+              </Section>
+            </div>
 
             <Section
               id={SECTION_IDS.accounts}
               title="All accounts"
-              subtitle="The full portfolio, filtered by what you type. Pagination keeps the list focused."
-              tip="Type to filter by name, city (full state names work — 'Texas' matches 'TX'), notes, owner, or health group. Examples below in the Guide."
+              subtitle="Full portfolio. Type to filter; click a row to load the account in Outreach above."
+              tip="Type to filter by name, city (state names work — 'Texas' matches 'TX'), notes, owner, or health group. Hint chips appear when the box is empty."
             >
               <FilterBar
                 search={search}
@@ -454,33 +488,17 @@ export default function App() {
                     { ownerId: c.ownerId, status: c.status },
                   ])
                 )}
-                onOwnerChange={(id, ownerId) => updateCase(id, { ownerId })}
                 onStatusChange={(id, status) => updateCase(id, { status })}
-              />
-            </Section>
-
-            <Section
-              id={SECTION_IDS.outreach}
-              title="Outreach log"
-              subtitle="Every draft generated, every email opened, every status change — kept locally per account."
-              tip="This is your activity history. Phase 2 will add simulated replies and 'sent' tracking; for now it tracks everything you do."
-            >
-              <OutreachSection
-                properties={properties}
-                drafts={drafts}
-                onSelect={(id) => {
-                  handleSelect(id);
-                  jumpToSection(SECTION_IDS.overview);
-                }}
-                nonce={activityNonce}
               />
             </Section>
 
             <Section
               id={SECTION_IDS.team}
               title="Team"
-              subtitle="Who owns what, how busy they are, and what they've touched recently."
-              tip="Workload bars are computed from the current dataset and case ownership. Recent activity is whatever you've done in this browser."
+              subtitle="Who owns what, how busy they are, what they've touched recently."
+              tip="Workload bars come from current case ownership. Recent activity is whatever you've done in this browser session."
+              collapsible
+              defaultOpen={false}
             >
               <TeamSection
                 properties={properties}
@@ -529,6 +547,12 @@ export default function App() {
         onLoad={onLoadProperties}
         currentSampleCsv={SAMPLE_CSV_TEXT}
         initialView={uploadInitial}
+      />
+      <DataPreviewModal
+        open={dataPreviewOpen}
+        onClose={() => setDataPreviewOpen(false)}
+        properties={properties}
+        sourceLabel={dataSourceLabel}
       />
       <GuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
       <DevPanel

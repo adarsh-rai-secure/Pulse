@@ -14,6 +14,7 @@ import { getCapState, incrementCap } from '../lib/sessionCap';
 import { ragStore } from '../lib/ragStore';
 import { RetrievedChunks } from './RetrievedChunks';
 import { AIDraftPanel } from './AIDraftPanel';
+import { HandoffStrip } from './HandoffStrip';
 import { InfoTip } from './InfoTip';
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
   thresholds: Thresholds;
   caseState: { ownerId: string; status: CaseStatus; notes: string };
   modelId: string;
+  activityNonce: number;
   onOwnerChange: (ownerId: string) => void;
   onStatusChange: (status: CaseStatus) => void;
   onNotesChange: (notes: string) => void;
@@ -44,6 +46,7 @@ export function ActionPanel({
   thresholds,
   caseState,
   modelId,
+  activityNonce,
   onOwnerChange,
   onStatusChange,
   onNotesChange,
@@ -183,47 +186,32 @@ export function ActionPanel({
           </ol>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="label-eyebrow">Owner</span>
-              <InfoTip
-                text="Who is on the hook for this account. Default routing comes from the quadrant; you can override."
-                side="right"
-              />
-            </div>
-            <select
-              className="input"
-              value={caseState.ownerId}
-              onChange={(e) => onOwnerChange(e.target.value)}
-            >
-              {TEAM.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name} — {m.role}
-                </option>
-              ))}
-            </select>
+        <HandoffStrip
+          propertyId={property.id}
+          currentOwnerId={caseState.ownerId}
+          nonce={activityNonce}
+          onPickOwner={onOwnerChange}
+        />
+
+        <div>
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="label-eyebrow">Case status</span>
+            <InfoTip
+              text="Working state for this case. 'New' is fresh, 'In progress' is being worked on, 'Waiting' is on the client, 'Completed' means closed out. Status changes are logged in the outreach log."
+              side="right"
+            />
           </div>
-          <div>
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="label-eyebrow">Status</span>
-              <InfoTip
-                text="Working state for this case. Persists in browser storage so reopening the page keeps your queue intact."
-                side="left"
-              />
-            </div>
-            <select
-              className="input"
-              value={caseState.status}
-              onChange={(e) => onStatusChange(e.target.value as CaseStatus)}
-            >
-              {STATUS.map((s) => (
-                <option key={s.v} value={s.v}>
-                  {s.l}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            className="input w-auto"
+            value={caseState.status}
+            onChange={(e) => onStatusChange(e.target.value as CaseStatus)}
+          >
+            {STATUS.map((s) => (
+              <option key={s.v} value={s.v}>
+                {s.l}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
