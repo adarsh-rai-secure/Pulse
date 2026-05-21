@@ -22,9 +22,12 @@ import { CATEGORIES } from './data/categories';
 import { TEAM, getMember } from './data/team';
 import { classify, summarize } from './lib/classify';
 import { ragStore } from './lib/ragStore';
+import { replyStore } from './lib/replyStore';
 import { propertiesToCsv } from './lib/parseCsv';
 import { DEFAULT_MODEL_ID } from './lib/models';
 import { activity } from './lib/activity';
+import { generateReply } from './lib/generateReply';
+import { getCapState, incrementCap } from './lib/sessionCap';
 import { buildIndex, searchAccounts, SEARCH_HINTS } from './lib/search';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import type {
@@ -32,6 +35,7 @@ import type {
   CategoryKey,
   DraftRecord,
   Property,
+  ReplyRecord,
   Thresholds,
 } from './types';
 
@@ -73,6 +77,14 @@ export default function App() {
   const [drafts, setDrafts] = useState<Record<string, DraftRecord>>(() =>
     ragStore.loadDrafts()
   );
+
+  const [replies, setReplies] = useState<Record<string, ReplyRecord>>(() =>
+    replyStore.loadAll()
+  );
+  const [pendingReplies, setPendingReplies] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [replyStreams, setReplyStreams] = useState<Record<string, string>>({});
 
   const [modelId, setModelId] = useLocalStorage<string>(
     'pulse.model',
@@ -230,8 +242,12 @@ export default function App() {
     setDataSourceLabel(filename);
     setCases({});
     setDrafts({});
+    setReplies({});
+    setPendingReplies({});
+    setReplyStreams({});
     setSelectedId(null);
     ragStore.clearAll();
+    replyStore.clear();
     activity.clear();
     activity.log({
       type: 'data_loaded',
@@ -270,6 +286,67 @@ export default function App() {
       summary: 'Opened draft in mail client',
     });
     bumpActivity();
+    scheduleReply(propertyId);
+  }
+
+  function scheduleReply(propertyId: string) {
+    const property = properties.find((x) => x.id === propertyId);
+    const draft = drafts[propertyId];
+    if (!property || !draft) return;
+    if (pendingReplies[propertyId]) return;
+
+    setPendingReplies((p) => ({ ...p, [propertyId]: true }));
+    const ownerId = cases[propertyId]?.ownerId ?? 'csm';
+
+    // 1.8 - 3.2s simulated delay
+    const delay = 1800 + Math.random() * 1400;
+    window.setTimeout(async () => {
+      const category = classify(
+        property.userAdoption,
+        property.conversionRate,
+        thresholds
+      );
+
+      const capState = getCapState();
+      const useApi = capState.remaining > 0;
+      if (useApi) incrementCap();
+
+      const record = await generateReply(
+        { property, category, draft },
+        {
+          modelId,
+          apiKey: useApi
+            ? import.meta.env.VITE_OPENROUTER_API_KEY
+            : undefined,
+          onToken: (acc) =>
+            setReplyStreams((s) => ({ ...s, [propertyId]: acc })),
+        }
+      );
+
+      replyStore.set(propertyId, record);
+      setReplies((r) => ({ ...r, [propertyId]: record }));
+      setPendingReplies((p) => {
+        const { [propertyId]: _, ...rest } = p;
+        return rest;
+      });
+      setReplyStreams((s) => {
+        const { [propertyId]: _, ...rest } = s;
+        return rest;
+      });
+
+      activity.log({
+        type: 'reply_received',
+        propertyId,
+        ownerId,
+        summary: `Client reply received (${record.tone})`,
+        meta: {
+          tone: record.tone,
+          model: record.model,
+          latency: record.latencyMs,
+        },
+      });
+      bumpActivity();
+    }, delay);
   }
 
   function onDraftPinned(propertyId: string) {
@@ -419,6 +496,11 @@ export default function App() {
                         caseState={cs}
                         modelId={modelId}
                         activityNonce={activityNonce}
+                        reply={replies[selectedProperty.id]}
+                        isWaitingForReply={
+                          !!pendingReplies[selectedProperty.id]
+                        }
+                        replyStreaming={replyStreams[selectedProperty.id] ?? ''}
                         onOwnerChange={(ownerId) =>
                           updateCase(selectedProperty.id, { ownerId })
                         }
@@ -451,6 +533,8 @@ export default function App() {
                   <OutreachSection
                     properties={properties}
                     drafts={drafts}
+                    replies={replies}
+                    pendingReplies={pendingReplies}
                     onSelect={(id) => {
                       handleSelect(id);
                     }}

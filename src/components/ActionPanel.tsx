@@ -15,7 +15,9 @@ import { ragStore } from '../lib/ragStore';
 import { RetrievedChunks } from './RetrievedChunks';
 import { AIDraftPanel } from './AIDraftPanel';
 import { HandoffStrip } from './HandoffStrip';
+import { ConversationView } from './ConversationView';
 import { InfoTip } from './InfoTip';
+import type { ReplyRecord } from '../types';
 
 interface Props {
   property: Property;
@@ -24,6 +26,9 @@ interface Props {
   caseState: { ownerId: string; status: CaseStatus; notes: string };
   modelId: string;
   activityNonce: number;
+  reply: ReplyRecord | undefined;
+  isWaitingForReply: boolean;
+  replyStreaming: string;
   onOwnerChange: (ownerId: string) => void;
   onStatusChange: (status: CaseStatus) => void;
   onNotesChange: (notes: string) => void;
@@ -47,6 +52,9 @@ export function ActionPanel({
   caseState,
   modelId,
   activityNonce,
+  reply,
+  isWaitingForReply,
+  replyStreaming,
   onOwnerChange,
   onStatusChange,
   onNotesChange,
@@ -249,6 +257,12 @@ export function ActionPanel({
             Generate draft
           </button>
         )}
+        <ConversationView
+          draft={draftRecord}
+          reply={reply}
+          isWaitingForReply={isWaitingForReply}
+          replyStreaming={replyStreaming}
+        />
       </div>
     </div>
   );

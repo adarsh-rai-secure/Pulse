@@ -82,3 +82,18 @@ export interface SimilarAccount {
   category: CategoryKey;
   score: number;
 }
+
+export type ReplyTone = 'positive' | 'neutral' | 'negative';
+
+export interface ReplyRecord {
+  propertyId: string;
+  toDraftTimestamp?: number;
+  subject: string;
+  body: string;
+  raw: string;
+  tone: ReplyTone;
+  model: string;
+  latencyMs: number;
+  timestamp: number;
+  usedFallback: boolean;
+}
