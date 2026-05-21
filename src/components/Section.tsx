@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InfoTip } from './InfoTip';
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
   children: React.ReactNode;
   collapsible?: boolean;
   defaultOpen?: boolean;
+  onToggle?: (open: boolean) => void;
 }
 
 export function Section({
@@ -21,9 +22,14 @@ export function Section({
   children,
   collapsible = false,
   defaultOpen = true,
+  onToggle,
 }: Props) {
   const [open, setOpen] = useState(defaultOpen);
   const showContent = collapsible ? open : true;
+
+  useEffect(() => {
+    onToggle?.(open);
+  }, [open, onToggle]);
 
   return (
     <section id={id} className="scroll-mt-20 space-y-3">

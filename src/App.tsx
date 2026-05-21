@@ -114,6 +114,11 @@ export default function App() {
   );
   const [splashOpen, setSplashOpen] = useState(!splashSeen);
   const [tourOpen, setTourOpen] = useState(false);
+
+  // Tour-tracking flags
+  const [dataPreviewOpenedOnce, setDataPreviewOpenedOnce] = useState(false);
+  const [teamSectionOpen, setTeamSectionOpen] = useState(false);
+  const [sentDraftIds, setSentDraftIds] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadInitial, setUploadInitial] = useState<
     'pick' | 'sample-preview'
@@ -306,6 +311,7 @@ export default function App() {
     setReplies({});
     setPendingReplies({});
     setReplyStreams({});
+    setSentDraftIds(new Set());
     setSelectedId(null);
     ragStore.clearAll();
     replyStore.clear();
@@ -344,9 +350,18 @@ export default function App() {
       type: 'mailto_opened',
       propertyId,
       ownerId,
-      summary: 'Opened draft in mail client',
+      summary: 'Sent via webhook (simulated)',
     });
     bumpActivity();
+    setSentDraftIds((s) => {
+      const next = new Set(s);
+      next.add(propertyId);
+      return next;
+    });
+    setToast(
+      'Sent via webhook (simulated). Tracking reply from the client…'
+    );
+    setTimeout(() => setToast(null), 2400);
     scheduleReply(propertyId);
   }
 
@@ -498,7 +513,10 @@ export default function App() {
             <span>Data source:</span>
             <button
               className="font-mono text-ink-700 hover:text-brand-700 underline underline-offset-2 decoration-dotted"
-              onClick={() => setDataPreviewOpen(true)}
+              onClick={() => {
+                setDataPreviewOpen(true);
+                setDataPreviewOpenedOnce(true);
+              }}
               title="Preview the dataset currently loaded"
             >
               {dataSourceLabel}
@@ -507,7 +525,10 @@ export default function App() {
             <span>{properties.length} accounts</span>
             <button
               className="text-brand-700 hover:text-brand-900 underline underline-offset-2 ml-1"
-              onClick={() => setDataPreviewOpen(true)}
+              onClick={() => {
+                setDataPreviewOpen(true);
+                setDataPreviewOpenedOnce(true);
+              }}
             >
               view
             </button>
@@ -582,6 +603,7 @@ export default function App() {
                           !!pendingReplies[selectedProperty.id]
                         }
                         replyStreaming={replyStreams[selectedProperty.id] ?? ''}
+                        hasSent={sentDraftIds.has(selectedProperty.id)}
                         onHandoff={(newOwnerId, reasonId, note) =>
                           handleHandoff(
                             selectedProperty.id,
@@ -672,6 +694,7 @@ export default function App() {
               tip="Workload bars come from current case ownership. Recent activity is whatever you've done in this browser session."
               collapsible
               defaultOpen={false}
+              onToggle={(open) => setTeamSectionOpen(open)}
             >
               <TeamSection
                 properties={properties}
@@ -739,6 +762,20 @@ export default function App() {
       <Tour
         steps={TOUR_STEPS}
         open={tourOpen}
+        state={{
+          thresholdUA: thresholds.ua,
+          thresholdCR: thresholds.cr,
+          dataPreviewOpened: dataPreviewOpenedOnce,
+          selectedId,
+          hasDraftForSelected: selectedId ? !!drafts[selectedId] : false,
+          hasReplyForSelected: selectedId ? !!replies[selectedId] : false,
+          hasHandoffForSelected: selectedId
+            ? activity
+                .forProperty(selectedId)
+                .some((e) => e.type === 'owner_changed')
+            : false,
+          teamSectionOpen,
+        }}
         onClose={() => {
           setTourOpen(false);
           if (!tourSeen) setTourSeen(true);

@@ -9,8 +9,9 @@ interface Props {
   usedFallback: boolean;
   capRemaining: number;
   capLimit: number;
+  hasSent: boolean;
   onRegenerate: () => void;
-  onMailto: () => void;
+  onSend: () => void;
   onPin: () => void;
 }
 
@@ -21,8 +22,9 @@ export function AIDraftPanel({
   usedFallback,
   capRemaining,
   capLimit,
+  hasSent,
   onRegenerate,
-  onMailto,
+  onSend,
   onPin,
 }: Props) {
   const [copied, setCopied] = useState(false);
@@ -94,18 +96,20 @@ export function AIDraftPanel({
       <div className="flex flex-wrap gap-2">
         <button
           className="btn-primary"
-          onClick={onMailto}
-          disabled={!draft && !displayText}
+          onClick={onSend}
+          disabled={!draft || isStreaming || hasSent}
+          title="Triggers a webhook simulation: POSTs the draft to a mock endpoint and tracks the reply. Nothing leaves your browser in this demo."
         >
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none">
             <path
-              d="M4 6h16v12H4z M4 6l8 7 8-7"
+              d="M5 12l4 4L19 6"
               stroke="currentColor"
-              strokeWidth="1.5"
+              strokeWidth="1.8"
+              strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
-          Open in mail
+          {hasSent ? 'Sent (simulated)' : 'Send (simulated)'}
         </button>
         <button className="btn-outline" onClick={handleCopy} disabled={!displayText}>
           {copied ? 'Copied' : 'Copy'}

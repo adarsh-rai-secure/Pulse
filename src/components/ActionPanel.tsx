@@ -39,6 +39,7 @@ interface Props {
   reply: ReplyRecord | undefined;
   isWaitingForReply: boolean;
   replyStreaming: string;
+  hasSent: boolean;
   onHandoff: (newOwnerId: string, reasonId: string, note?: string) => void;
   onStatusChange: (status: CaseStatus) => void;
   onNotesChange: (notes: string) => void;
@@ -65,6 +66,7 @@ export function ActionPanel({
   reply,
   isWaitingForReply,
   replyStreaming,
+  hasSent,
   onHandoff,
   onStatusChange,
   onNotesChange,
@@ -150,10 +152,7 @@ export function ActionPanel({
     setStreamingText('');
   }
 
-  function onMailto() {
-    const subj = draftRecord?.subject ?? 'Outreach draft';
-    const body = draftRecord?.body ?? '';
-    window.location.href = `mailto:?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  function onSend() {
     onMailtoOpened?.();
   }
 
@@ -293,8 +292,9 @@ export function ActionPanel({
           usedFallback={usedFallback}
           capRemaining={cap.remaining}
           capLimit={cap.limit}
+          hasSent={hasSent}
           onRegenerate={runGeneration}
-          onMailto={onMailto}
+          onSend={onSend}
           onPin={onPin}
         />
         {!draftRecord && !isStreaming && (
