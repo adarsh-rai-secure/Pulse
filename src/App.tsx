@@ -20,7 +20,7 @@ import { DevPanel } from './components/DevPanel';
 import { Modal } from './components/Modal';
 import { Tour } from './components/Tour';
 import { TOUR_STEPS } from './lib/tourSteps';
-import { loadSampleProperties, SAMPLE_CSV_TEXT } from './data/sampleData';
+import { loadSampleProperties } from './data/sampleData';
 import { CATEGORIES } from './data/categories';
 import { TEAM, getMember } from './data/team';
 import { classify, summarize } from './lib/classify';
@@ -746,7 +746,6 @@ export default function App() {
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
         onLoad={onLoadProperties}
-        currentSampleCsv={SAMPLE_CSV_TEXT}
         initialView={uploadInitial}
       />
       <DataPreviewModal

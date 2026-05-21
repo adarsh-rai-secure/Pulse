@@ -12,13 +12,19 @@ import {
 } from '../lib/parseCsv';
 import type { FieldKey, RawTable } from '../lib/parseCsv';
 import type { Property } from '../types';
+import {
+  SAMPLE_DATASETS,
+  DEFAULT_SAMPLE_ID,
+  getSample,
+} from '../data/sampleData';
+import type { SampleId } from '../data/sampleData';
 
 interface Props {
   open: boolean;
   onClose: () => void;
   onLoad: (props: Property[], filename: string) => void;
-  currentSampleCsv: string;
   initialView?: 'pick' | 'sample-preview';
+  initialSampleId?: SampleId;
 }
 
 type View =
@@ -49,19 +55,21 @@ export function UploadModal({
   open,
   onClose,
   onLoad,
-  currentSampleCsv,
   initialView = 'pick',
+  initialSampleId = DEFAULT_SAMPLE_ID,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [view, setView] = useState<View>(() =>
-    initialView === 'sample-preview'
-      ? {
-          kind: 'preview',
-          props: parseCsvToProperties(currentSampleCsv),
-          filename: 'pulse-sample-portfolio.csv (bundled)',
-        }
-      : { kind: 'pick' }
-  );
+  const [view, setView] = useState<View>(() => {
+    if (initialView === 'sample-preview') {
+      const s = getSample(initialSampleId);
+      return {
+        kind: 'preview',
+        props: parseCsvToProperties(s.csv),
+        filename: s.filename,
+      };
+    }
+    return { kind: 'pick' };
+  });
   const [dragOver, setDragOver] = useState(false);
 
   function reset() {
@@ -110,20 +118,29 @@ export function UploadModal({
     }
   }
 
-  function previewSample() {
+  function previewSample(id: SampleId) {
+    const s = getSample(id);
     setView({
       kind: 'preview',
-      props: parseCsvToProperties(currentSampleCsv),
-      filename: 'pulse-sample-portfolio.csv (bundled)',
+      props: parseCsvToProperties(s.csv),
+      filename: s.filename,
     });
   }
 
-  function downloadSample() {
-    const blob = new Blob([currentSampleCsv], { type: 'text/csv' });
+  function loadSampleDirect(id: SampleId) {
+    const s = getSample(id);
+    onLoad(parseCsvToProperties(s.csv), s.filename);
+    reset();
+    onClose();
+  }
+
+  function downloadSample(id: SampleId) {
+    const s = getSample(id);
+    const blob = new Blob([s.csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'pulse-sample-portfolio.csv';
+    a.download = `pulse-${s.shortLabel}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -211,29 +228,62 @@ export function UploadModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button
-              className="panel-flat p-4 text-left hover:border-brand-200 transition-colors"
-              onClick={previewSample}
-            >
-              <div className="text-13 font-medium text-ink-900">
-                Preview the bundled sample
-              </div>
-              <p className="text-2xs text-ink-500 mt-1">
-                Show the 52-account demo portfolio before loading it.
-              </p>
-            </button>
-            <button
-              className="panel-flat p-4 text-left hover:border-brand-200 transition-colors"
-              onClick={downloadSample}
-            >
-              <div className="text-13 font-medium text-ink-900">
-                Download the sample as a CSV
-              </div>
-              <p className="text-2xs text-ink-500 mt-1">
-                Use it as a starting template for your own data.
-              </p>
-            </button>
+          <div>
+            <div className="label-eyebrow mb-2">
+              Or pick a bundled sample dataset
+            </div>
+            <div className="space-y-2">
+              {SAMPLE_DATASETS.map((s) => (
+                <div
+                  key={s.id}
+                  className="panel-flat p-3 flex items-start gap-3"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="text-13 font-medium text-ink-900">
+                        {s.label}
+                      </div>
+                      <span
+                        className={
+                          'chip ' +
+                          (s.notesPerRow === 'dense'
+                            ? 'bg-signal-refBg text-signal-refFg'
+                            : 'bg-surface-100 text-ink-500')
+                        }
+                      >
+                        {s.notesPerRow === 'dense'
+                          ? 'notes on every row'
+                          : 'sparse notes'}
+                      </span>
+                    </div>
+                    <p className="text-2xs text-ink-500 mt-1 leading-relaxed">
+                      {s.description}
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-1.5 flex-shrink-0">
+                    <button
+                      className="btn-primary text-2xs py-1 px-2"
+                      onClick={() => loadSampleDirect(s.id)}
+                    >
+                      Load
+                    </button>
+                    <button
+                      className="btn-outline text-2xs py-1 px-2"
+                      onClick={() => previewSample(s.id)}
+                    >
+                      Preview
+                    </button>
+                    <button
+                      className="btn-ghost text-2xs py-1 px-2"
+                      onClick={() => downloadSample(s.id)}
+                      title="Download as CSV"
+                    >
+                      ⬇ CSV
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
