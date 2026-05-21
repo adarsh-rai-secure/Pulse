@@ -28,6 +28,7 @@ import { DEFAULT_MODEL_ID } from './lib/models';
 import { activity } from './lib/activity';
 import { generateReply } from './lib/generateReply';
 import { getCapState, incrementCap } from './lib/sessionCap';
+import { getReason } from './lib/handoffReasons';
 import { buildIndex, searchAccounts, SEARCH_HINTS } from './lib/search';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import type {
@@ -43,6 +44,8 @@ interface CaseEntry {
   ownerId: string;
   status: CaseStatus;
   notes: string;
+  lastHandoffReasonId?: string;
+  lastHandoffNote?: string;
 }
 
 function defaultCase(catKey: CategoryKey): CaseEntry {
@@ -203,7 +206,13 @@ export default function App() {
     };
     const next: CaseEntry = { ...prev, ...patch };
 
-    if (patch.ownerId && patch.ownerId !== prev.ownerId) {
+    // owner changes flow through handleHandoff; updateCase only logs the
+    // change here if it happens via some other path (e.g. data reload).
+    if (
+      patch.ownerId &&
+      patch.ownerId !== prev.ownerId &&
+      !patch.lastHandoffReasonId
+    ) {
       activity.log({
         type: 'owner_changed',
         propertyId,
@@ -235,6 +244,50 @@ export default function App() {
     ragStore.saveCase(propertyId, next);
     setCases((prevState) => ({ ...prevState, [propertyId]: next }));
     bumpActivity();
+  }
+
+  function handleHandoff(
+    propertyId: string,
+    newOwnerId: string,
+    reasonId: string,
+    note?: string
+  ) {
+    const p = properties.find((x) => x.id === propertyId);
+    if (!p) return;
+    const cat = classify(p.userAdoption, p.conversionRate, thresholds);
+    const prev = cases[propertyId] ?? {
+      ...defaultCase(cat),
+      notes: p.notes ?? '',
+    };
+    if (newOwnerId === prev.ownerId) return;
+
+    const reason = getReason(reasonId);
+    const reasonLabel = reason?.label ?? 'Custom';
+    const fromName = getMember(prev.ownerId).name;
+    const toName = getMember(newOwnerId).name;
+
+    activity.log({
+      type: 'owner_changed',
+      propertyId,
+      ownerId: newOwnerId,
+      summary: `Reassigned from ${fromName} to ${toName} · ${reasonLabel}${note ? ' (' + note + ')' : ''}`,
+      meta: { reason: reasonId, fromOwner: prev.ownerId },
+    });
+
+    const next: CaseEntry = {
+      ...prev,
+      ownerId: newOwnerId,
+      lastHandoffReasonId: reasonId,
+      lastHandoffNote: note,
+    };
+    ragStore.saveCase(propertyId, next);
+    setCases((prevState) => ({ ...prevState, [propertyId]: next }));
+    bumpActivity();
+
+    setToast(
+      `Handed off ${p.name} to ${toName} — next AI draft will be tuned for "${reasonLabel}"`
+    );
+    setTimeout(() => setToast(null), 3500);
   }
 
   function onLoadProperties(props: Property[], filename: string) {
@@ -501,8 +554,13 @@ export default function App() {
                           !!pendingReplies[selectedProperty.id]
                         }
                         replyStreaming={replyStreams[selectedProperty.id] ?? ''}
-                        onOwnerChange={(ownerId) =>
-                          updateCase(selectedProperty.id, { ownerId })
+                        onHandoff={(newOwnerId, reasonId, note) =>
+                          handleHandoff(
+                            selectedProperty.id,
+                            newOwnerId,
+                            reasonId,
+                            note
+                          )
                         }
                         onStatusChange={(status) =>
                           updateCase(selectedProperty.id, { status })

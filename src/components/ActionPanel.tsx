@@ -17,19 +17,26 @@ import { AIDraftPanel } from './AIDraftPanel';
 import { HandoffStrip } from './HandoffStrip';
 import { ConversationView } from './ConversationView';
 import { InfoTip } from './InfoTip';
+import { getReason } from '../lib/handoffReasons';
 import type { ReplyRecord } from '../types';
 
 interface Props {
   property: Property;
   allProperties: Property[];
   thresholds: Thresholds;
-  caseState: { ownerId: string; status: CaseStatus; notes: string };
+  caseState: {
+    ownerId: string;
+    status: CaseStatus;
+    notes: string;
+    lastHandoffReasonId?: string;
+    lastHandoffNote?: string;
+  };
   modelId: string;
   activityNonce: number;
   reply: ReplyRecord | undefined;
   isWaitingForReply: boolean;
   replyStreaming: string;
-  onOwnerChange: (ownerId: string) => void;
+  onHandoff: (newOwnerId: string, reasonId: string, note?: string) => void;
   onStatusChange: (status: CaseStatus) => void;
   onNotesChange: (notes: string) => void;
   onDraftChange: (record: DraftRecord) => void;
@@ -55,7 +62,7 @@ export function ActionPanel({
   reply,
   isWaitingForReply,
   replyStreaming,
-  onOwnerChange,
+  onHandoff,
   onStatusChange,
   onNotesChange,
   onDraftChange,
@@ -106,6 +113,7 @@ export function ActionPanel({
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
+    const reason = getReason(caseState.lastHandoffReasonId);
     const result = await generateDraft(
       {
         property: enrichedProperty,
@@ -115,6 +123,9 @@ export function ActionPanel({
         chunks,
         similar,
         thresholds,
+        handoffReasonLabel: reason?.label,
+        handoffReasonHint: reason?.promptHint,
+        handoffNote: caseState.lastHandoffNote,
       },
       {
         modelId,
@@ -197,8 +208,10 @@ export function ActionPanel({
         <HandoffStrip
           propertyId={property.id}
           currentOwnerId={caseState.ownerId}
+          category={category}
+          lastReasonId={caseState.lastHandoffReasonId}
           nonce={activityNonce}
-          onPickOwner={onOwnerChange}
+          onHandoff={onHandoff}
         />
 
         <div>

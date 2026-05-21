@@ -17,6 +17,8 @@ export interface CaseState {
   status: CaseStatus;
   notes: string;
   draftCache?: DraftRecord;
+  lastHandoffReasonId?: string;
+  lastHandoffNote?: string;
 }
 
 export interface Thresholds {

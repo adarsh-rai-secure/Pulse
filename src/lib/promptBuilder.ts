@@ -27,6 +27,9 @@ export interface DraftInput {
   chunks: RetrievedChunk[];
   similar: SimilarAccount[];
   thresholds: { ua: number; cr: number };
+  handoffReasonLabel?: string;
+  handoffReasonHint?: string;
+  handoffNote?: string;
 }
 
 export function buildUserPrompt(input: DraftInput): string {
@@ -62,6 +65,21 @@ export function buildUserPrompt(input: DraftInput): string {
   lines.push('# Your identity');
   lines.push(`Your name: ${input.ownerName}`);
   lines.push(`Your role: ${input.ownerRole}`);
+
+  if (input.handoffReasonLabel || input.handoffReasonHint) {
+    lines.push('');
+    lines.push('# Why this account was just handed off to you');
+    if (input.handoffReasonLabel) {
+      lines.push(`Reason: ${input.handoffReasonLabel}`);
+    }
+    if (input.handoffReasonHint) {
+      lines.push(`Tone guidance: ${input.handoffReasonHint}`);
+    }
+    if (input.handoffNote) {
+      lines.push(`Additional context: ${input.handoffNote}`);
+    }
+  }
+
   lines.push('');
   lines.push('Write the draft now.');
   return lines.join('\n');
