@@ -18,6 +18,8 @@ import { UploadModal } from './components/UploadModal';
 import { DataPreviewModal } from './components/DataPreviewModal';
 import { DevPanel } from './components/DevPanel';
 import { Modal } from './components/Modal';
+import { Tour } from './components/Tour';
+import { TOUR_STEPS } from './lib/tourSteps';
 import { loadSampleProperties, SAMPLE_CSV_TEXT } from './data/sampleData';
 import { CATEGORIES } from './data/categories';
 import { TEAM, getMember } from './data/team';
@@ -106,7 +108,12 @@ export default function App() {
     'pulse.splash.seen',
     false
   );
+  const [tourSeen, setTourSeen] = useLocalStorage<boolean>(
+    'pulse.tour.seen',
+    false
+  );
   const [splashOpen, setSplashOpen] = useState(!splashSeen);
+  const [tourOpen, setTourOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadInitial, setUploadInitial] = useState<
     'pick' | 'sample-preview'
@@ -431,8 +438,15 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (!splashOpen && !splashSeen) setSplashSeen(true);
-  }, [splashOpen, splashSeen, setSplashSeen]);
+    if (!splashOpen && !splashSeen) {
+      setSplashSeen(true);
+      if (!tourSeen) {
+        // Give the page a moment to settle before the tour shows
+        const t = window.setTimeout(() => setTourOpen(true), 400);
+        return () => window.clearTimeout(t);
+      }
+    }
+  }, [splashOpen, splashSeen, setSplashSeen, tourSeen]);
 
   const lastDraft = selectedId ? drafts[selectedId] : undefined;
   const pinnedCount = Object.keys(ragStore.loadGolden()).length;
@@ -476,7 +490,10 @@ export default function App() {
       <ProblemBanner />
 
       <main className="flex-1 max-w-[1280px] w-full mx-auto px-6 py-5">
-        <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+        <div
+          className="flex items-center justify-between gap-3 flex-wrap mb-4"
+          data-tour="data-source"
+        >
           <div className="text-2xs text-ink-500 flex items-center gap-2 flex-wrap">
             <span>Data source:</span>
             <button
@@ -542,7 +559,7 @@ export default function App() {
               </div>
             </Section>
 
-            <div ref={outreachRef}>
+            <div ref={outreachRef} data-tour="section-outreach">
               <Section
                 id={SECTION_IDS.outreach}
                 title="Outreach"
@@ -613,6 +630,7 @@ export default function App() {
               </Section>
             </div>
 
+            <div data-tour="section-accounts">
             <Section
               id={SECTION_IDS.accounts}
               title="All accounts"
@@ -644,7 +662,9 @@ export default function App() {
                 onStatusChange={(id, status) => updateCase(id, { status })}
               />
             </Section>
+            </div>
 
+            <div data-tour="section-team">
             <Section
               id={SECTION_IDS.team}
               title="Team"
@@ -665,6 +685,7 @@ export default function App() {
                 nonce={activityNonce}
               />
             </Section>
+            </div>
           </div>
         </div>
       </main>
@@ -707,7 +728,22 @@ export default function App() {
         properties={properties}
         sourceLabel={dataSourceLabel}
       />
-      <GuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
+      <GuideModal
+        open={guideOpen}
+        onClose={() => setGuideOpen(false)}
+        onReplayTour={() => {
+          setGuideOpen(false);
+          setTimeout(() => setTourOpen(true), 200);
+        }}
+      />
+      <Tour
+        steps={TOUR_STEPS}
+        open={tourOpen}
+        onClose={() => {
+          setTourOpen(false);
+          if (!tourSeen) setTourSeen(true);
+        }}
+      />
       <DevPanel
         open={devOpen}
         onClose={() => setDevOpen(false)}

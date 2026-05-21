@@ -4,7 +4,10 @@ export function ProblemBanner() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-brand-50 border-b border-brand-200">
+    <div
+      className="bg-brand-50 border-b border-brand-200"
+      data-tour="problem-banner"
+    >
       <div className="max-w-[1280px] mx-auto px-6 py-2.5 flex items-start gap-3 text-13">
         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-700 text-white flex items-center justify-center mt-px text-[11px] font-bold">
           ?

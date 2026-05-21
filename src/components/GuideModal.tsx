@@ -6,12 +6,30 @@ import { SEARCH_HINTS } from '../lib/search';
 interface Props {
   open: boolean;
   onClose: () => void;
+  onReplayTour?: () => void;
 }
 
-export function GuideModal({ open, onClose }: Props) {
+export function GuideModal({ open, onClose, onReplayTour }: Props) {
   return (
     <Modal open={open} onClose={onClose} title="Guide" width="max-w-3xl">
       <div className="space-y-5 text-13 leading-relaxed">
+        {onReplayTour && (
+          <div className="flex items-center justify-between gap-3 border border-brand-200 bg-brand-50/50 rounded-md p-3">
+            <div>
+              <div className="text-13 font-medium text-brand-900">
+                Replay the walkthrough
+              </div>
+              <p className="text-2xs text-ink-500">
+                Re-run the 9-step interactive tour with coachmarks for every
+                main control.
+              </p>
+            </div>
+            <button className="btn-primary" onClick={onReplayTour}>
+              Start tour
+            </button>
+          </div>
+        )}
+
         <section>
           <h3 className="font-semibold text-ink-900 mb-1">In plain English</h3>
           <p className="text-ink-700">

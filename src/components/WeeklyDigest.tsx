@@ -62,7 +62,7 @@ export function WeeklyDigest({ properties, thresholds, onClickCategory }: Props)
     .slice(0, 4);
 
   return (
-    <div className="panel-flat p-3">
+    <div className="panel-flat p-3" data-tour="digest">
       <div className="flex items-center justify-between mb-2">
         <div>
           <div className="label-eyebrow">This week's movement</div>

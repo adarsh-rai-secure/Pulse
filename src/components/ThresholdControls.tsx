@@ -8,7 +8,7 @@ interface Props {
 
 export function ThresholdControls({ thresholds, onChange }: Props) {
   return (
-    <div className="panel p-4 flex flex-col gap-4">
+    <div className="panel p-4 flex flex-col gap-4" data-tour="thresholds">
       <div>
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1.5">

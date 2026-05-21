@@ -49,7 +49,10 @@ export function ScatterPlot({
   const ty = sy(thresholds.cr);
 
   return (
-    <div className="panel-flat p-2 relative overflow-hidden">
+    <div
+      className="panel-flat p-2 relative overflow-hidden"
+      data-tour="scatter"
+    >
       <svg
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
