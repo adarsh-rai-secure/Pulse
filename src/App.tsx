@@ -9,6 +9,7 @@ import { CaseTable } from './components/CaseTable';
 import { ActionPanel } from './components/ActionPanel';
 import { OutreachSection } from './components/OutreachSection';
 import { TeamSection } from './components/TeamSection';
+import { WeeklyDigest } from './components/WeeklyDigest';
 import { SectionNav } from './components/SectionNav';
 import { Section } from './components/Section';
 import { SplashModal } from './components/SplashModal';
@@ -527,6 +528,16 @@ export default function App() {
                   thresholds={thresholds}
                   selectedId={selectedId}
                   onSelect={handleSelect}
+                />
+              </div>
+              <div className="mt-3">
+                <WeeklyDigest
+                  properties={properties}
+                  thresholds={thresholds}
+                  onClickCategory={(k) => {
+                    setCategoryFilter(k);
+                    jumpToSection(SECTION_IDS.accounts);
+                  }}
                 />
               </div>
             </Section>

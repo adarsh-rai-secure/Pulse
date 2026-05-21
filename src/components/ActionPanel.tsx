@@ -16,6 +16,9 @@ import { RetrievedChunks } from './RetrievedChunks';
 import { AIDraftPanel } from './AIDraftPanel';
 import { HandoffStrip } from './HandoffStrip';
 import { ConversationView } from './ConversationView';
+import { DiagnosisChip } from './DiagnosisChip';
+import { Sparkline } from './Sparkline';
+import { trendFor } from '../lib/trends';
 import { InfoTip } from './InfoTip';
 import { getReason } from '../lib/handoffReasons';
 import type { ReplyRecord } from '../types';
@@ -182,13 +185,42 @@ export function ActionPanel({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <MetricCard label="User adoption" value={`${property.userAdoption}%`} />
-          <MetricCard
-            label="Conversion rate"
-            value={`${property.conversionRate}%`}
-          />
-        </div>
+        {(() => {
+          const trend = trendFor(property);
+          return (
+            <div className="grid grid-cols-2 gap-2">
+              <MetricCard
+                label="User adoption"
+                value={`${property.userAdoption}%`}
+                spark={
+                  <Sparkline
+                    values={trend.ua.values}
+                    max={100}
+                    delta={trend.ua.delta}
+                  />
+                }
+              />
+              <MetricCard
+                label="Conversion rate"
+                value={`${property.conversionRate}%`}
+                spark={
+                  <Sparkline
+                    values={trend.cr.values}
+                    max={50}
+                    delta={trend.cr.delta}
+                  />
+                }
+              />
+            </div>
+          );
+        })()}
+
+        <DiagnosisChip
+          property={property}
+          category={category}
+          caseNotes={caseState.notes}
+          modelId={modelId}
+        />
 
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
@@ -281,12 +313,23 @@ export function ActionPanel({
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function MetricCard({
+  label,
+  value,
+  spark,
+}: {
+  label: string;
+  value: string;
+  spark?: React.ReactNode;
+}) {
   return (
     <div className="panel-flat p-2.5">
       <div className="label-eyebrow">{label}</div>
-      <div className="text-[18px] font-semibold tracking-tight tabular-nums">
-        {value}
+      <div className="flex items-end justify-between gap-2">
+        <div className="text-[18px] font-semibold tracking-tight tabular-nums">
+          {value}
+        </div>
+        {spark}
       </div>
     </div>
   );
