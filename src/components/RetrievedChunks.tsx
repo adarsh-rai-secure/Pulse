@@ -16,7 +16,7 @@ export function RetrievedChunks({ chunks, similar }: Props) {
           {chunks.length} chunk{chunks.length === 1 ? '' : 's'}
         </span>
         <InfoTip
-          text="What we feed into the model before it writes. The account profile and your notes are pulled in as 'chunks' — this is the RAG context store under the hood. Persisted in browser storage so your notes survive a refresh."
+          text="What we feed into the model before it writes. The account profile and your notes are pulled in as 'chunks'. This is the RAG context store under the hood. Persisted in browser storage so your notes survive a refresh."
           side="bottom"
         />
       </div>
@@ -36,7 +36,7 @@ export function RetrievedChunks({ chunks, similar }: Props) {
       <div className="flex items-center gap-1.5 mb-1.5">
         <span className="label-eyebrow">Similar accounts</span>
         <InfoTip
-          text="The three most similar accounts in your portfolio, based on how their notes and profiles line up with this one. Uses TF-IDF cosine similarity in the browser — no external service. Gives the model precedent to reason from."
+          text="The three most similar accounts in your portfolio, based on how their notes and profiles line up with this one. Uses TF-IDF cosine similarity in the browser, with no external service. Gives the model precedent to reason from."
           side="bottom"
         />
       </div>

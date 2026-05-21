@@ -57,7 +57,7 @@ export function buildUserPrompt(input: DraftInput): string {
   lines.push(
     `Thresholds in use: UA ≥ ${input.thresholds.ua}%, CR ≥ ${input.thresholds.cr}%`
   );
-  lines.push(`Category: ${cat.label} — ${cat.description}`);
+  lines.push(`Category: ${cat.label}. ${cat.description}`);
   lines.push('');
   lines.push('# Playbook for this category');
   cat.playbook.forEach((step, i) => lines.push(`${i + 1}. ${step}`));

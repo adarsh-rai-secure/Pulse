@@ -17,7 +17,8 @@ Rules:
 - Keep under 120 words
 - Sound like a real busy person, not a customer service rep
 - Reference one specific detail from the email when natural
-- Sign off with first initial + last name only (e.g., "— S. Patel")
+- Sign off on its own line with first initial + last name only (e.g., "S. Patel")
+- Do not use em dashes anywhere in the body
 - Do not invent dates, names, or numbers that were not provided
 
 Tone:
@@ -215,10 +216,10 @@ function templateBody(input: ReplyInput, tone: ReplyTone): string {
   const name = input.property.name;
   switch (tone) {
     case 'positive':
-      return `Thanks for the note. Thursday afternoon works on my end — let's say 2pm. I'll loop in our leasing lead at ${name}. Glad you're keeping an eye on the numbers; we've been trying to figure out why the early-week tours don't close.\n\n— J. Morales`;
+      return `Thanks for the note. Thursday afternoon works on my end. Let's say 2pm. I'll loop in our leasing lead at ${name}. Glad you're keeping an eye on the numbers; we've been trying to figure out why the early-week tours don't close.\n\nJ. Morales`;
     case 'neutral':
-      return `Appreciate the outreach. Before I commit to a time, can you send the actual conversation logs you mentioned? I want to look at the failure modes myself first. We had a leadership change in February and I'm being careful about putting more on my team's plate without context.\n\n— P. Chang`;
+      return `Appreciate the outreach. Before I commit to a time, can you send the actual conversation logs you mentioned? I want to look at the failure modes myself first. We had a leadership change in February and I'm being careful about putting more on my team's plate without context.\n\nP. Chang`;
     case 'negative':
-      return `Got the note. I'll be honest — I'm not sure this is the right week. We're mid-quarter, the regional team has been focused on other vendor reviews, and I don't have a strong read on whether the tool is the issue or the new lead sources. Let's circle back after our QBR next month.\n\n— D. Reilly`;
+      return `Got the note. I'll be honest, I'm not sure this is the right week. We're mid-quarter, the regional team has been focused on other vendor reviews, and I don't have a strong read on whether the tool is the issue or the new lead sources. Let's circle back after our QBR next month.\n\nD. Reilly`;
   }
 }

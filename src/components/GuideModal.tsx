@@ -93,7 +93,7 @@ export function GuideModal({ open, onClose, onReplayTour }: Props) {
           </ul>
           <p className="text-2xs text-ink-500 mt-2">
             Anything that's not a special token searches across account name,
-            city (with full state names too — "Texas" matches "TX"), notes, and
+            city (full state names also work, so "Texas" matches "TX"), notes, and
             owner name.
           </p>
         </section>

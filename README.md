@@ -20,10 +20,10 @@ Pulse replaces that hour with a five-minute prioritized queue.
 
 1. **Upload your portfolio CSV** (or use the bundled 52-account sample). Columns: property name, city, units, user adoption %, conversion rate %, notes.
 2. **Threshold sliders** classify every account into one of four quadrants in real time:
-   - **Churn risk** — low UA, low CR. Save call this week.
-   - **Stuck** — high UA, low CR. Technical problem. Route to solutions engineering.
-   - **Sleeping champion** — low UA, high CR. The product is doing the work without the team. Train and amplify.
-   - **Reference** — high UA, high CR. Ask for a referral, open expansion.
+   - **Churn risk**: low UA, low CR. Save call this week.
+   - **Stuck**: high UA, low CR. Technical problem. Route to solutions engineering.
+   - **Sleeping champion**: low UA, high CR. The product is doing the work without the team. Train and amplify.
+   - **Reference**: high UA, high CR. Ask for a referral, open expansion.
 3. **Click any account.** Pulse surfaces the playbook, the recommended owner, and an AI-drafted outreach email written from the account's numbers and notes.
 4. **The CSM reads, edits, and sends** via mailto or copy.
 

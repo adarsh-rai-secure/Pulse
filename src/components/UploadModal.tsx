@@ -287,7 +287,7 @@ export function UploadModal({
                     }
                   >
                     <option value={-1}>
-                      {required ? '— choose a column —' : '— skip —'}
+                      {required ? '(choose a column)' : '(skip this field)'}
                     </option>
                     {view.table.headers.map((h, i) => (
                       <option key={i} value={i}>

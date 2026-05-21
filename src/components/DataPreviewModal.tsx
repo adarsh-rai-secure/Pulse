@@ -45,9 +45,8 @@ export function DataPreviewModal({
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <p className="text-13 text-ink-700">
-            This is the dataset currently powering Pulse. Everything you see —
-            the scatter plot, the table, the AI drafts — derives from these
-            rows.
+            This is the dataset currently powering Pulse. Everything you see
+            (scatter, table, AI drafts) derives from these rows.
           </p>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button className="btn-outline" onClick={copyCsv}>
@@ -81,7 +80,7 @@ export function DataPreviewModal({
                   <Td className="text-right tabular-nums">{p.conversionRate}%</Td>
                   <Td className="text-ink-500 max-w-[300px]">
                     {p.notes || (
-                      <span className="text-ink-400 italic">—</span>
+                      <span className="text-ink-400 italic">(none)</span>
                     )}
                   </Td>
                 </tr>

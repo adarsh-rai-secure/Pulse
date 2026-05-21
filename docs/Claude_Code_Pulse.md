@@ -1,6 +1,6 @@
 # Claude Code Prompt: Build Pulse
 
-## MANDATORY SAFEGUARDS — READ BEFORE EXECUTING
+## MANDATORY SAFEGUARDS: READ BEFORE EXECUTING
 
 ### No Claude Attribution
 - Do NOT use --author flag or Co-authored-by trailers in any commit
@@ -127,7 +127,7 @@ Conversion Rate.
 
 ## Team roles (team.ts)
 
-Generic roles. Do NOT use any EliseAI employee names or emails.
+Generic roles. Do NOT use any vendor employee names or emails from the original assessment.
 
 | id | name | role | defaultFor |
 |---|---|---|---|

@@ -14,7 +14,7 @@ leads into tours. At the next property, the same software sits
 untouched and converts at 4%. Same product. Different outcomes.
 
 The person responsible for figuring out why is a customer success
-manager. One customer success manager at a company like EliseAI
+manager. One customer success manager at one of these vendors
 owns 40 to 60 property accounts. Every morning they open three
 different systems: one for platform usage data, one for conversion
 metrics, one for support tickets. By the time they have assembled
@@ -345,15 +345,15 @@ improve over time."
 ## Origin story (for portfolio page and README)
 
 I built the first version of this tool during a practical
-assessment for EliseAI, a company that makes AI leasing tools for
-multifamily property management. The assessment asked me to build
-a Retool dashboard that filters properties by adoption and
+assessment for a PropTech vendor that makes AI leasing software
+for multifamily property management. The assessment asked me to
+build a Retool dashboard that filters properties by adoption and
 conversion rate.
 
 I did not build a Retool dashboard. I built a standalone tool with
 a quadrant classification engine, interactive scatter plot, case
 management workflow, and AI-generated outreach. Then I deployed it.
 
-The original version had EliseAI branding and hardcoded team names.
-Pulse is the generalized version: any B2B company with account
-health data can upload a CSV and start using it.
+The original version had the vendor's branding and hardcoded team
+names. Pulse is the generalized version: any B2B company with
+account health data can upload a CSV and start using it.

@@ -109,7 +109,7 @@ function fallbackDiagnosis(input: DiagnosisInput): string {
   const notes = (input.caseNotes || property.notes || '').trim();
   const notesFrag = notes
     ? ` Notes on file: "${notes.length > 90 ? notes.slice(0, 87) + '…' : notes}"`
-    : ` No internal notes yet — first step is to pull the last 30 days of platform sessions to confirm the diagnosis.`;
+    : ` No internal notes yet. First step is to pull the last 30 days of platform sessions to confirm the diagnosis.`;
   switch (category) {
     case 'churn':
       return `Adoption at ${property.userAdoption}% with conversion at ${property.conversionRate}% means almost nobody is logging in and nothing the tool produces is closing. Likely a combination of stalled onboarding and the leasing team falling back on manual processes.${notesFrag}`;

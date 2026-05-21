@@ -12,7 +12,7 @@ const PANELS = [
   {
     label: 'The problem',
     title: 'One AI product, fifty different clients.',
-    body: 'Adoption looks wildly different at every client. One uses it daily and closes 38% of leads. The next runs the same software and closes 4%. The customer success team has to figure out who needs help, what kind, and what to say — every single morning.',
+    body: 'Adoption looks wildly different at every client. One uses it daily and closes 38% of leads. The next runs the same software and closes 4%. The customer success team has to figure out who needs help, what kind, and what to say. Every single morning.',
   },
   {
     label: 'How Pulse helps',

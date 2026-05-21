@@ -69,14 +69,14 @@ export function CaseTable({
               <Th className="text-right pr-3">
                 Use{' '}
                 <InfoTip
-                  text="User adoption — how often the team uses the AI platform. Higher is better."
+                  text="User adoption: how often the team uses the AI platform. Higher is better."
                   side="left"
                 />
               </Th>
               <Th className="text-right pr-3">
                 Close{' '}
                 <InfoTip
-                  text="Conversion rate — what percent of AI-handled leads turned into tours or signed leases. Higher is better."
+                  text="Conversion rate: what percent of AI-handled leads turned into tours or signed leases. Higher is better."
                   side="left"
                 />
               </Th>
@@ -163,7 +163,7 @@ export function CaseTable({
 
       <div className="flex items-center justify-between text-2xs text-ink-500 px-1">
         <span>
-          Showing {from}–{to} of {properties.length}
+          Showing {from} to {to} of {properties.length}
         </span>
         {pageCount > 1 && (
           <div className="flex items-center gap-1">

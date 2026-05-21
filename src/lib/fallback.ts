@@ -9,7 +9,7 @@ export function fallbackDraft(input: DraftInput): string {
   switch (category) {
     case 'churn':
       return [
-        `Subject: ${property.name} — quick call this week?`,
+        `Subject: ${property.name}, quick call this week?`,
         '',
         `Hi team,`,
         '',
@@ -22,7 +22,7 @@ export function fallbackDraft(input: DraftInput): string {
       ].join('\n');
     case 'stuck':
       return [
-        `Subject: SE review needed — ${property.name} (high UA, low CR)`,
+        `Subject: SE review needed for ${property.name} (high UA, low CR)`,
         '',
         `Filing this for the solutions engineering queue.`,
         '',
@@ -37,11 +37,11 @@ export function fallbackDraft(input: DraftInput): string {
         '',
         `I will book a 30-minute technical review with the ops lead once SE has initial findings.`,
         '',
-        `— ${ownerName}`,
+        ownerName,
       ].join('\n');
     case 'sleeping':
       return [
-        `Subject: ${property.name} — your numbers are quietly great`,
+        `Subject: ${property.name}, your numbers are quietly great`,
         '',
         `Hi team,`,
         '',
@@ -54,7 +54,7 @@ export function fallbackDraft(input: DraftInput): string {
       ].join('\n');
     case 'reference':
       return [
-        `Subject: ${property.name} — quick ask and a thank you`,
+        `Subject: ${property.name}, quick ask and a thank you`,
         '',
         `Hi team,`,
         '',
@@ -64,7 +64,7 @@ export function fallbackDraft(input: DraftInput): string {
         '',
         `Either way, thank you for the partnership.`,
         '',
-        `— ${ownerName}`,
+        ownerName,
       ].join('\n');
   }
 }

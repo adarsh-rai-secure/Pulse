@@ -18,7 +18,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: '[data-tour="thresholds"]',
     title: 'Set the bar for "high usage"',
-    body: 'The defaults are 30% usage / 20% close rate. Based on industry averages we\'ve seen, a more realistic bar is 20% usage and 40% close rate. That puts more accounts into the "stuck" and "sleeping champion" groups where the AI tool is doing the work but humans aren\'t — or vice versa.',
+    body: 'The defaults are 30% usage and 20% close rate. Based on industry averages we\'ve seen, a more realistic bar is 20% usage and 40% close rate. That puts more accounts into the "stuck" and "sleeping champion" groups where the AI tool is doing the work but humans aren\'t, or vice versa.',
     task: 'Drag "High usage starts at" down to roughly 20%.',
     placement: 'right',
     isComplete: (s) => Math.abs(s.thresholdUA - 20) <= 2,
@@ -26,7 +26,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: '[data-tour="thresholds"]',
     title: 'Tighten the close rate',
-    body: 'Now raise the bar for what counts as a strong close rate. 40% is a high standard — only the actual reference accounts in your portfolio will clear it.',
+    body: 'Now raise the bar for what counts as a strong close rate. 40% is a high standard. Only the actual reference accounts in your portfolio will clear it.',
     task: 'Drag "Strong close rate starts at" up to roughly 40%.',
     placement: 'right',
     isComplete: (s) => Math.abs(s.thresholdCR - 40) <= 2,
@@ -50,7 +50,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: '[data-tour="section-outreach"]',
     title: 'Hand it off to the right person',
-    body: 'Real customer success works because the right person is on the right account. Use "Hand off…" to pick a reason (technical, training, save call, expansion, capacity), then a teammate. The next AI draft is automatically tuned for that reason — for example, a "technical issue" handoff produces an INTERNAL ticket to solutions engineering instead of a client email.',
+    body: 'Real customer success works because the right person is on the right account. Use "Hand off…" to pick a reason (technical, training, save call, expansion, capacity), then a teammate. The next AI draft is automatically tuned for that reason. For example, a "technical issue" handoff produces an INTERNAL ticket to solutions engineering instead of a client email.',
     task: 'Click "Hand off…", pick a reason, then pick a new owner.',
     placement: 'top',
     isComplete: (s) => s.hasHandoffForSelected,
@@ -58,7 +58,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: '[data-tour="section-outreach"]',
     title: 'Send and watch a reply come back',
-    body: 'In production, "Send" would POST the draft to your CRM or mail-integration webhook. In this demo it triggers the AI reply simulation: ~2 seconds later, a plausible client response streams back with a tone (positive / neutral / negative). The tone is weighted by the account\'s health group — churn risks reply colder, references reply warmer.',
+    body: 'In production, "Send" would POST the draft to your CRM or mail-integration webhook. In this demo it triggers the AI reply simulation: ~2 seconds later, a plausible client response streams back with a tone (positive, neutral, or negative). The tone is weighted by the account\'s health group, so churn risks reply colder and references reply warmer.',
     task: 'Click "Send (simulated)" on the draft and wait for the reply.',
     placement: 'top',
     isComplete: (s) => s.hasReplyForSelected,
@@ -74,7 +74,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     target: 'body',
     title: 'You\'re set',
-    body: 'That\'s the full loop. Everything you do — drafts, replies, handoffs, notes, status changes — is persisted in your browser. Refresh and it\'s all still there. Replay this tour any time from Guide → "Start tour".',
+    body: 'That\'s the full loop. Everything you do (drafts, replies, handoffs, notes, status changes) is persisted in your browser. Refresh and it\'s all still there. Replay this tour any time from Guide, then "Start tour".',
     placement: 'center',
   },
 ];

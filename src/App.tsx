@@ -298,7 +298,7 @@ export default function App() {
     bumpActivity();
 
     setToast(
-      `Handed off ${p.name} to ${toName} — next AI draft will be tuned for "${reasonLabel}"`
+      `Handed off ${p.name} to ${toName}. Next AI draft will be tuned for "${reasonLabel}".`
     );
     setTimeout(() => setToast(null), 3500);
   }
@@ -657,7 +657,7 @@ export default function App() {
               id={SECTION_IDS.accounts}
               title="All accounts"
               subtitle="Full portfolio. Type to filter; click a row to load the account in Outreach above."
-              tip="Type to filter by name, city (state names work — 'Texas' matches 'TX'), notes, owner, or health group. Hint chips appear when the box is empty."
+              tip="Type to filter by name, city (state names work, so 'Texas' matches 'TX'), notes, owner, or health group. Hint chips appear when the box is empty."
             >
               <FilterBar
                 search={search}
